@@ -9,6 +9,8 @@ import PerformanceTrendPanel from './components/PerformanceTrendPanel';
 import MonitorAlarmPanel from './components/MonitorAlarmPanel';
 import HighFreqAlarmPanel from './components/HighFreqAlarmPanel';
 import RootCausePanel from './components/RootCausePanel';
+import StationDetailView from './components/StationDetailView';
+import { mockStationDetails } from './data/mockDetails';
 
 import {
   SiteHealth,
@@ -23,6 +25,7 @@ import {
 
 export default function App() {
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
+  const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
 
   // 1. Site Health Rankings (Left-Top - Replacing concentric rings)
   const [siteHealths, setSiteHealths] = useState<SiteHealth[]>([
@@ -209,6 +212,20 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isSimulating]);
 
+  // Resolve current active detail matching simulated score
+  const getSelectedStationDetail = () => {
+    if (!selectedStationId) return null;
+    const baseDetail = mockStationDetails[selectedStationId];
+    if (!baseDetail) return null;
+    const currentSiteInList = siteHealths.find((s) => s.id === selectedStationId);
+    return {
+      ...baseDetail,
+      score: currentSiteInList ? currentSiteInList.score : baseDetail.score
+    };
+  };
+
+  const selectedStationDetail = getSelectedStationDetail();
+
   return (
     <div className="min-h-screen bg-[#020617] text-slate-100 flex flex-col font-sans select-none overflow-x-hidden pb-6">
       {/* 1. Dashboard Sleek Header */}
@@ -218,70 +235,80 @@ export default function App() {
         onToggleSimulation={() => setIsSimulating(!isSimulating)} 
       />
 
-      {/* 2. Responsive 3-Column Bento Grid Layout */}
-      <main className="flex-1 w-full max-w-[1920px] mx-auto px-4 md:px-6 mt-4 grid grid-cols-1 xl:grid-cols-4 gap-4">
-        
-        {/* ================= LEFT COLUMN (1/4 Width) ================= */}
-        <section className="xl:col-span-1 flex flex-col space-y-4">
+      {selectedStationDetail ? (
+        <StationDetailView 
+          detail={selectedStationDetail} 
+          onBack={() => setSelectedStationId(null)} 
+        />
+      ) : (
+        /* 2. Responsive 3-Column Bento Grid Layout */
+        <main className="flex-1 w-full max-w-[1920px] mx-auto px-4 md:px-6 mt-4 grid grid-cols-1 xl:grid-cols-4 gap-4">
           
-          {/* Section 1A: Site Health Ranking (REQUESTED MODIFICATION) */}
-          <div className="h-[290px]">
-            <SiteHealthPanel data={siteHealths} />
-          </div>
+          {/* ================= LEFT COLUMN (1/4 Width) ================= */}
+          <section className="xl:col-span-1 flex flex-col space-y-4">
+            
+            {/* Section 1A: Site Health Ranking (REQUESTED MODIFICATION) */}
+            <div className="h-[290px]">
+              <SiteHealthPanel 
+                data={siteHealths} 
+                onSelectStation={(id) => setSelectedStationId(id)}
+              />
+            </div>
 
-          {/* Section 1B: High Energy Consumption Ranking */}
-          <div className="h-[230px]">
-            <EnergyRankingPanel stations={energyStations} />
-          </div>
+            {/* Section 1B: High Energy Consumption Ranking */}
+            <div className="h-[230px]">
+              <EnergyRankingPanel stations={energyStations} />
+            </div>
 
-          {/* Section 1C: Real-time Device Connection Status */}
-          <div className="h-[260px]">
-            <DeviceStatusPanel status={deviceStatus} />
-          </div>
+            {/* Section 1C: Real-time Device Connection Status */}
+            <div className="h-[260px]">
+              <DeviceStatusPanel status={deviceStatus} />
+            </div>
 
-        </section>
+          </section>
 
-        {/* ================= MIDDLE COLUMN (2/4 Width - Major Focus) ================= */}
-        <section className="xl:col-span-2 flex flex-col space-y-4">
-          
-          {/* Section 2A: Alarm severity level summaries (REQUESTED MODIFICATION) */}
-          <div className="h-auto">
-            <AlarmSummaryPanel summary={alarmSummary} />
-          </div>
+          {/* ================= MIDDLE COLUMN (2/4 Width - Major Focus) ================= */}
+          <section className="xl:col-span-2 flex flex-col space-y-4">
+            
+            {/* Section 2A: Alarm severity level summaries (REQUESTED MODIFICATION) */}
+            <div className="h-auto">
+              <AlarmSummaryPanel summary={alarmSummary} />
+            </div>
 
-          {/* Section 2B: Interactive Schematic Vector Map */}
-          <div className="flex-1 min-h-[340px] h-[360px]">
-            <MapPanel nodes={mapNodes} />
-          </div>
+            {/* Section 2B: Interactive Schematic Vector Map */}
+            <div className="flex-1 min-h-[340px] h-[360px]">
+              <MapPanel nodes={mapNodes} />
+            </div>
 
-          {/* Section 2C: Performance and Alarm Historic Trends */}
-          <div className="h-[220px]">
-            <PerformanceTrendPanel trendData={trendData} />
-          </div>
+            {/* Section 2C: Performance and Alarm Historic Trends */}
+            <div className="h-[220px]">
+              <PerformanceTrendPanel trendData={trendData} />
+            </div>
 
-        </section>
+          </section>
 
-        {/* ================= RIGHT COLUMN (1/4 Width) ================= */}
-        <section className="xl:col-span-1 flex flex-col space-y-4">
-          
-          {/* Section 3A: Monitor Alarm Categorized donut */}
-          <div className="h-[230px]">
-            <MonitorAlarmPanel stats={monitorAlarms} />
-          </div>
+          {/* ================= RIGHT COLUMN (1/4 Width) ================= */}
+          <section className="xl:col-span-1 flex flex-col space-y-4">
+            
+            {/* Section 3A: Monitor Alarm Categorized donut */}
+            <div className="h-[230px]">
+              <MonitorAlarmPanel stats={monitorAlarms} />
+            </div>
 
-          {/* Section 3B: High Frequency Warnings ranking listing */}
-          <div className="h-[270px]">
-            <HighFreqAlarmPanel alarms={highFreqWarnings} />
-          </div>
+            {/* Section 3B: High Frequency Warnings ranking listing */}
+            <div className="h-[270px]">
+              <HighFreqAlarmPanel alarms={highFreqWarnings} />
+            </div>
 
-          {/* Section 3C: Root Cause Analysis gauge */}
-          <div className="h-[260px]">
-            <RootCausePanel />
-          </div>
+            {/* Section 3C: Root Cause Analysis gauge */}
+            <div className="h-[260px]">
+              <RootCausePanel />
+            </div>
 
-        </section>
+          </section>
 
-      </main>
+        </main>
+      )}
     </div>
   );
 }

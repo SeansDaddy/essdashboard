@@ -4,9 +4,10 @@ import { ShieldAlert, TrendingUp, Cpu } from 'lucide-react';
 
 interface SiteHealthPanelProps {
   data: SiteHealth[];
+  onSelectStation?: (id: string) => void;
 }
 
-export default function SiteHealthPanel({ data }: SiteHealthPanelProps) {
+export default function SiteHealthPanel({ data, onSelectStation }: SiteHealthPanelProps) {
   // Sort by score descending to ensure health ranking is correct
   const sortedData = [...data].sort((a, b) => b.score - a.score);
 
@@ -31,7 +32,7 @@ export default function SiteHealthPanel({ data }: SiteHealthPanelProps) {
       <div className="absolute bottom-0 left-0 w-32 h-[1px] bg-gradient-to-r from-cyan-500/50 to-transparent" />
       
       {/* Title */}
-      <div className="flex items-center justify-between mb-4 border-l-2 border-cyan-400 pl-2">
+      <div className="flex items-center justify-between mb-3 border-l-2 border-cyan-400 pl-2">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold tracking-wider text-slate-100 font-sans">
             站点健康度排名
@@ -43,14 +44,23 @@ export default function SiteHealthPanel({ data }: SiteHealthPanelProps) {
         </span>
       </div>
 
+      {/* Helper text */}
+      <p className="text-[9px] text-[#5f759e] mb-2 font-sans select-none leading-tight">
+        * 点击任一储能站可开启专家诊断健康度详情页面
+      </p>
+
       {/* Main Content Info */}
-      <div className="flex-1 overflow-y-auto pr-1 space-y-3.5">
+      <div className="flex-1 overflow-y-auto pr-1 space-y-3">
         {sortedData.map((item, index) => {
           const { text, bar, glow } = getStatusColor(item.score);
           const rating = getScoreRating(item.score);
           
           return (
-            <div key={item.id} className="relative group flex flex-col space-y-1 select-none">
+            <div 
+              key={item.id} 
+              onClick={() => onSelectStation?.(item.id)}
+              className="relative group flex flex-col space-y-1 select-none cursor-pointer hover:bg-[#10243d]/40 p-1.5 rounded-lg border border-transparent hover:border-[#1e40a6]/40 transition-all duration-150"
+            >
               <div className="flex items-center justify-between font-mono text-xs">
                 <div className="flex items-center gap-2 max-w-[70%]">
                   {/* Rank Badge */}
@@ -62,23 +72,23 @@ export default function SiteHealthPanel({ data }: SiteHealthPanelProps) {
                   }`}>
                     {index + 1}
                   </span>
-                  <span className="text-slate-300 font-sans truncate text-[11px] group-hover:text-cyan-300 transition-colors">
+                  <span className="text-slate-300 font-sans truncate text-[11px] group-hover:text-[#00f0ff] font-medium transition-colors">
                     {item.name}
                   </span>
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <span className={`text-[10px] font-medium px-1 bg-[#102447]/50 border border-slate-800 rounded text-slate-400`}>
+                  <span className={`text-[9px] font-medium px-1 bg-[#102447]/50 border border-[#142544]/60 rounded text-slate-400`}>
                     {rating}
                   </span>
-                  <span className={`font-semibold ${text} w-8 text-right font-mono`}>
+                  <span className={`font-semibold ${text} w-8 text-right font-mono group-hover:scale-105 transition-transform`}>
                     {item.score}%
                   </span>
                 </div>
               </div>
 
               {/* Progress bar */}
-              <div className="h-2 w-full bg-slate-950/80 rounded-full overflow-hidden border border-[#142544]">
+              <div className="h-1.5 w-full bg-slate-950/80 rounded-full overflow-hidden border border-[#142544]">
                 <div 
                   className={`h-full ${bar} rounded-full transition-all duration-1000 relative shadow-sm ${glow}`}
                   style={{ width: `${item.score}%` }}
@@ -90,6 +100,7 @@ export default function SiteHealthPanel({ data }: SiteHealthPanelProps) {
           );
         })}
       </div>
+
 
       {/* Footer statistics card */}
       <div className="mt-4 pt-3 border-t border-[#142544]/60 flex justify-between items-center text-[10px] font-mono text-[#5f759e]">
