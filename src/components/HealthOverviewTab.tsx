@@ -40,12 +40,14 @@ interface HealthOverviewTabProps {
   initialDimension?: DimensionType;
   selectedStationId?: string | null;
   onSelectStation?: (id: string | null) => void;
+  onNavigate?: (tab: 'alarm' | 'warning') => void;
 }
 
 export default function HealthOverviewTab({ 
   initialDimension = 'region',
   selectedStationId,
-  onSelectStation
+  onSelectStation,
+  onNavigate
 }: HealthOverviewTabProps) {
   const [activeTab, setActiveTab] = useState<DimensionType>(initialDimension);
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,12 +63,7 @@ export default function HealthOverviewTab({
   const [selectedScoreRow, setSelectedScoreRow] = useState<any | null>(null);
   const [scoreModalType, setScoreModalType] = useState<'overall' | 'alarm' | 'warning' | 'perf' | 'device' | null>(null);
 
-  // Active Deep Link pre-filter state for Alarm/Warning list
-  const [deepLinkFilter, setDeepLinkFilter] = useState<{
-    rep?: string;
-    siteName?: string;
-    type?: 'alarm' | 'warning' | 'performance';
-  } | null>(null);
+  // (deepLinkFilter removed - navigation now routes to alarm/warning tabs)
 
   // Handle setting sort field
   const handleSort = (field: string) => {
@@ -173,35 +170,20 @@ export default function HealthOverviewTab({
     setScoreModalType(type);
   };
 
-  // Direct trigger link pre-filtered issue viewer
-  const triggerDeepLink = (rep: string, siteName: string | undefined, type: 'alarm' | 'warning' | 'performance') => {
-    setDeepLinkFilter({ rep, siteName, type });
+  // Navigate to alarm or warning tab instead of deeplink view
+  const triggerNavigate = (type: 'alarm' | 'warning' | 'performance') => {
+    if (onNavigate) {
+      if (type === 'alarm') {
+        onNavigate('alarm');
+      } else {
+        onNavigate('warning');
+      }
+    }
     setSelectedScoreRow(null);
     setScoreModalType(null);
-    
-    // Smoothly scroll down to the bottom link details section
-    setTimeout(() => {
-      const el = document.getElementById('deep-link-issues-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }, 150);
   };
 
-  // Compute the deep linked list items
-  const activeDeepLinkList = useMemo(() => {
-    if (!deepLinkFilter) return [];
-    return mockDeepLinkDetails.filter(issue => {
-      // Filter matching Representative Office
-      const matchRep = !deepLinkFilter.rep || issue.rep === deepLinkFilter.rep;
-      // Filter matching Site Name
-      const matchSite = !deepLinkFilter.siteName || issue.siteName === deepLinkFilter.siteName;
-      // Filter matching issue category
-      const matchType = !deepLinkFilter.type || issue.type === deepLinkFilter.type;
-      return matchRep && matchSite && matchType;
-    });
-  }, [deepLinkFilter]);
-
-  // Quick stats about deep links overall
-  const overallDeepIssuesCount = mockDeepLinkDetails.length;
+  // (activeDeepLinkList and overallDeepIssuesCount removed)
 
   return (
     <div className="flex-1 w-full max-w-[1920px] mx-auto px-4 md:px-6 py-6 flex flex-col space-y-6">
@@ -232,14 +214,7 @@ export default function HealthOverviewTab({
             </button>
           )}
 
-          {deepLinkFilter && (
-            <button
-              onClick={() => setDeepLinkFilter(null)}
-              className="px-2.5 py-1.5 text-[10px] font-mono rounded-lg border border-emerald-500/30 text-emerald-400 bg-emerald-950/20 hover:bg-emerald-950/50 transition-all cursor-pointer"
-            >
-              重置穿透滤镜 [已开启]
-            </button>
-          )}
+
         </div>
       </div>
 
@@ -735,7 +710,7 @@ export default function HealthOverviewTab({
                   {/* 3 Click buttons that directly trigger deeplink links */}
                   <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
                     <button
-                      onClick={() => triggerDeepLink(selectedScoreRow.rep, selectedScoreRow.siteName, 'alarm')}
+                      onClick={() => triggerNavigate('alarm')}
                       className="flex-1 flex items-center justify-between px-3 py-2 bg-red-950/35 hover:bg-red-900/40 border border-red-900/40 text-red-400 rounded-lg text-xs tracking-wide transition-all duration-150 cursor-pointer"
                     >
                       <span>穿透定位 [活动告警明细]</span>
@@ -743,7 +718,7 @@ export default function HealthOverviewTab({
                     </button>
 
                     <button
-                      onClick={() => triggerDeepLink(selectedScoreRow.rep, selectedScoreRow.siteName, 'warning')}
+                      onClick={() => triggerNavigate('warning')}
                       className="flex-1 flex items-center justify-between px-3 py-2 bg-amber-950/35 hover:bg-amber-900/40 border border-amber-900/40 text-amber-400 rounded-lg text-xs tracking-wide transition-all duration-150 cursor-pointer"
                     >
                       <span>穿透定位 [温湿度预警明细]</span>
@@ -751,7 +726,7 @@ export default function HealthOverviewTab({
                     </button>
 
                     <button
-                      onClick={() => triggerDeepLink(selectedScoreRow.rep, selectedScoreRow.siteName, 'performance')}
+                      onClick={() => triggerNavigate('performance')}
                       className="flex-1 flex items-center justify-between px-3 py-2 bg-indigo-950/35 hover:bg-indigo-900/40 border border-indigo-900/40 text-[#a5b4fc] rounded-lg text-xs tracking-wide transition-all duration-150 cursor-pointer"
                     >
                       <span>穿透定位 [电能质量指标]</span>
@@ -771,116 +746,6 @@ export default function HealthOverviewTab({
         )}
       </AnimatePresence>
 
-      {/* 5. Linked Pre-fitted Action Details Section (穿透展现页面) */}
-      <section 
-        id="deep-link-issues-section" 
-        className="bg-[#0c1324]/80 border border-cyan-500/20 rounded-xl p-5 shadow-inner transition-all duration-300 relative glow-panel"
-      >
-        <div className="absolute top-0 right-0 w-32 h-[1px] bg-gradient-to-l from-[#00f0ff]/50 to-transparent" />
-        
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-[#142544]/60 pb-3.5 mb-4">
-          <div className="flex items-center gap-2.5">
-            <span className="p-1 px-2 rounded-md bg-cyan-950 text-cyan-400 text-[10px] font-mono border border-cyan-800/40">DEEP_LINK_VIEW</span>
-            <div>
-              <h3 className="text-xs font-bold font-sans tracking-wide text-white uppercase">
-                {deepLinkFilter ? '穿透联动过滤 • 故障与预警联结明细' : '全域实时警告、预警与性能扣分项数据库'}
-              </h3>
-              {deepLinkFilter ? (
-                <p className="text-[10px] text-emerald-400 font-mono mt-0.5 animate-pulse">
-                  当前诊断滤镜: [代表处: {deepLinkFilter.rep || '全部'}] • [站点: {deepLinkFilter.siteName || '全部'}] • [类型: {deepLinkFilter.type || '全部'}]
-                </p>
-              ) : (
-                <p className="text-[10px] text-[#5f759e] font-sans mt-0.5">
-                  点击上方列表中任何 [评分数值] 即可自动将相关高优先级告警/指标预警一键锁定呈现。
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {deepLinkFilter && (
-              <button
-                onClick={() => setDeepLinkFilter(null)}
-                className="px-3 py-1 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-md text-[10px] cursor-pointer"
-              >
-                清除当前穿透
-              </button>
-            )}
-            <span className="text-[10px] font-mono text-slate-400">
-              可用故障池条目: <strong className="text-[#00f0ff]">{deepLinkFilter ? activeDeepLinkList.length : overallDeepIssuesCount} 项</strong>
-            </span>
-          </div>
-        </div>
-
-        {/* Dynamic linked lists content card group */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(deepLinkFilter ? activeDeepLinkList : mockDeepLinkDetails).map((issue) => {
-            return (
-              <div 
-                key={issue.id} 
-                className={`p-4 rounded-xl border relative overflow-hidden transition-all flex flex-col justify-between min-h-[190px] ${
-                  issue.type === 'alarm' ? 'bg-[#180a0c]/85 border-rose-950/60 hover:border-red-500/30' : 
-                  issue.type === 'warning' ? 'bg-[#18110b]/85 border-amber-950/60 hover:border-amber-500/30' : 
-                  'bg-[#0b0c1b]/85 border-indigo-950/60 hover:border-indigo-500/30'
-                }`}
-              >
-                
-                {/* ID marker + Category flag */}
-                <div className="flex justify-between items-center mb-2 text-[10px]">
-                  <span className="font-mono text-slate-500">REF: {issue.id}</span>
-                  <div className="flex items-center gap-1">
-                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
-                      issue.type === 'alarm' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 
-                      issue.type === 'warning' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
-                      'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
-                    }`}>
-                      {issue.type === 'alarm' ? '活动告警' : issue.type === 'warning' ? '指标预警' : '性能异常'}
-                    </span>
-                    <span className="px-1 py-0.2 rounded bg-slate-950 text-slate-400 font-mono scale-90">{issue.level}</span>
-                  </div>
-                </div>
-
-                {/* Scope Metadata */}
-                <div className="text-[10.5px] font-mono text-slate-400 bg-slate-950/70 py-1 px-2 rounded border border-[#142544]/60 mb-2.5">
-                  <span className="text-cyan-400">{issue.rep}</span> • <span className="text-white">{issue.siteName}</span>
-                </div>
-
-                {/* Title */}
-                <h4 className="text-xs font-semibold text-slate-100 mb-1 font-sans flex items-center gap-1.5 leading-snug">
-                  {issue.type === 'alarm' ? <Flame size={12} className="text-rose-500 shrink-0" /> : <AlertOctagon size={12} className="text-amber-500 shrink-0" />}
-                  <span>{issue.title}</span>
-                </h4>
-
-                {/* Reason */}
-                <p className="text-[11px] text-[#8ea4cc] leading-relaxed mb-3 pr-1">
-                  <strong>扣分原委:</strong> {issue.reason}
-                </p>
-
-                {/* Advisory suggestion box */}
-                <div className="mt-auto p-2 rounded bg-[#0a1120] border border-cyan-900/40 text-[10.5px] text-emerald-450 leading-relaxed font-sans">
-                  <div className="flex items-start gap-1">
-                    <Wrench size={11} className="text-emerald-400 shrink-0 mt-0.5 animate-bounce" />
-                    <span>
-                      <strong className="text-amber-400">消除建议: </strong>
-                      {issue.suggestion}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Score impact float ribbon */}
-                <span className={`absolute right-0 top-6 text-[9px] font-bold px-2 py-0.5 rounded-l-md font-mono ${
-                  issue.type === 'alarm' ? 'bg-rose-500/20 text-rose-400' : 
-                  issue.type === 'warning' ? 'bg-amber-500/20 text-amber-400' : 'bg-indigo-500/20 text-indigo-400'
-                }`}>
-                  扣 {issue.scoreImpact}
-                </span>
-                
-              </div>
-            );
-          })}
-        </div>
-
-      </section>
 
     </div>
   );

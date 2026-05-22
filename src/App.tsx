@@ -379,6 +379,7 @@ export default function App() {
                   setActiveMenu('monitor');
                 }
               }}
+              onNavigate={(tab) => setActiveMenu(tab)}
             />
           ) : activeMenu === 'alarm' ? (
             <div className="flex items-center justify-center h-full text-slate-400">
