@@ -12,7 +12,7 @@ import RootCausePanel from './components/RootCausePanel';
 import StationDetailView from './components/StationDetailView';
 import HealthOverviewTab from './components/HealthOverviewTab';
 import { mockStationDetails } from './data/mockDetails';
-import { LayoutGrid, HeartPulse, HardDrive, ShieldAlert, Award } from 'lucide-react';
+import { LayoutGrid, HeartPulse, HardDrive, ShieldAlert, Award, AlertTriangle, Bell, Gauge, MapPin, Database } from 'lucide-react';
 
 import {
   SiteHealth,
@@ -28,7 +28,7 @@ import {
 export default function App() {
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
   const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
-  const [activeMenu, setActiveMenu] = useState<'monitor' | 'health'>('monitor');
+  const [activeMenu, setActiveMenu] = useState<'monitor' | 'health' | 'alarm' | 'warning' | 'device' | 'site' | 'data'>('monitor');
 
   // 1. Site Health Rankings (Left-Top - Replacing concentric rings)
   const [siteHealths, setSiteHealths] = useState<SiteHealth[]>([
@@ -284,6 +284,78 @@ export default function App() {
             <span className="text-[9px] font-sans scale-90 tracking-tight">健康巡检</span>
           </button>
 
+          <div className="h-[1px] w-8 bg-[#142544]/60" />
+
+          {/* 告警 */}
+          <button
+            onClick={() => setActiveMenu('alarm')}
+            className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer border ${
+              activeMenu === 'alarm'
+                ? 'bg-[#1e40a6]/40 text-[#00f0ff] border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold'
+                : 'bg-transparent text-slate-400 border-transparent hover:text-slate-100 hover:bg-[#102447]/30'
+            }`}
+            title="告警"
+          >
+            <AlertTriangle size={18} />
+            <span className="text-[9px] font-sans scale-90 tracking-tight">告警</span>
+          </button>
+
+          {/* 预警 */}
+          <button
+            onClick={() => setActiveMenu('warning')}
+            className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer border ${
+              activeMenu === 'warning'
+                ? 'bg-[#1e40a6]/40 text-[#00f0ff] border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold'
+                : 'bg-transparent text-slate-400 border-transparent hover:text-slate-100 hover:bg-[#102447]/30'
+            }`}
+            title="预警"
+          >
+            <Bell size={18} />
+            <span className="text-[9px] font-sans scale-90 tracking-tight">预警</span>
+          </button>
+
+          {/* 设备 */}
+          <button
+            onClick={() => setActiveMenu('device')}
+            className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer border ${
+              activeMenu === 'device'
+                ? 'bg-[#1e40a6]/40 text-[#00f0ff] border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold'
+                : 'bg-transparent text-slate-400 border-transparent hover:text-slate-100 hover:bg-[#102447]/30'
+            }`}
+            title="设备"
+          >
+            <Gauge size={18} />
+            <span className="text-[9px] font-sans scale-90 tracking-tight">设备</span>
+          </button>
+
+          {/* 站点 */}
+          <button
+            onClick={() => setActiveMenu('site')}
+            className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer border ${
+              activeMenu === 'site'
+                ? 'bg-[#1e40a6]/40 text-[#00f0ff] border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold'
+                : 'bg-transparent text-slate-400 border-transparent hover:text-slate-100 hover:bg-[#102447]/30'
+            }`}
+            title="站点"
+          >
+            <MapPin size={18} />
+            <span className="text-[9px] font-sans scale-90 tracking-tight">站点</span>
+          </button>
+
+          {/* 数据 */}
+          <button
+            onClick={() => setActiveMenu('data')}
+            className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer border ${
+              activeMenu === 'data'
+                ? 'bg-[#1e40a6]/40 text-[#00f0ff] border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold'
+                : 'bg-transparent text-slate-400 border-transparent hover:text-slate-100 hover:bg-[#102447]/30'
+            }`}
+            title="数据"
+          >
+            <Database size={18} />
+            <span className="text-[9px] font-sans scale-90 tracking-tight">数据</span>
+          </button>
+
           {/* Lower status icons info */}
           <div className="mt-auto flex flex-col items-center gap-1 text-[8px] font-mono text-slate-500">
             <span className="cursor-help hover:text-cyan-400" title="自研诊断模块已激活-状态安全">🛡️ VERIFIED</span>
@@ -294,21 +366,60 @@ export default function App() {
         <div className="flex-1 overflow-y-auto">
           {activeMenu === 'health' ? (
             /* Multi-dimensional health viewing list */
-            <HealthOverviewTab 
+            <HealthOverviewTab
               initialDimension={
-                selectedStationId 
-                  ? 'site' 
+                selectedStationId
+                  ? 'site'
                   : 'region'
               }
               selectedStationId={selectedStationId}
               onSelectStation={(id) => {
                 setSelectedStationId(id);
-                // Switch back to monitoring mode if they entered deep BMS details click
                 if (id) {
                   setActiveMenu('monitor');
                 }
               }}
             />
+          ) : activeMenu === 'alarm' ? (
+            <div className="flex items-center justify-center h-full text-slate-400">
+              <div className="text-center">
+                <AlertTriangle size={48} className="mx-auto mb-4 opacity-30" />
+                <p className="text-lg font-mono">告警</p>
+                <p className="text-xs text-slate-600 mt-2">告警管理页面开发中</p>
+              </div>
+            </div>
+          ) : activeMenu === 'warning' ? (
+            <div className="flex items-center justify-center h-full text-slate-400">
+              <div className="text-center">
+                <Bell size={48} className="mx-auto mb-4 opacity-30" />
+                <p className="text-lg font-mono">预警</p>
+                <p className="text-xs text-slate-600 mt-2">预警管理页面开发中</p>
+              </div>
+            </div>
+          ) : activeMenu === 'device' ? (
+            <div className="flex items-center justify-center h-full text-slate-400">
+              <div className="text-center">
+                <Gauge size={48} className="mx-auto mb-4 opacity-30" />
+                <p className="text-lg font-mono">设备</p>
+                <p className="text-xs text-slate-600 mt-2">设备管理页面开发中</p>
+              </div>
+            </div>
+          ) : activeMenu === 'site' ? (
+            <div className="flex items-center justify-center h-full text-slate-400">
+              <div className="text-center">
+                <MapPin size={48} className="mx-auto mb-4 opacity-30" />
+                <p className="text-lg font-mono">站点</p>
+                <p className="text-xs text-slate-600 mt-2">站点管理页面开发中</p>
+              </div>
+            </div>
+          ) : activeMenu === 'data' ? (
+            <div className="flex items-center justify-center h-full text-slate-400">
+              <div className="text-center">
+                <Database size={48} className="mx-auto mb-4 opacity-30" />
+                <p className="text-lg font-mono">数据</p>
+                <p className="text-xs text-slate-600 mt-2">数据管理页面开发中</p>
+              </div>
+            </div>
           ) : selectedStationDetail ? (
             /* Selected single BMS station details */
             <StationDetailView 
