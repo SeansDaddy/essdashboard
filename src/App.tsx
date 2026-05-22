@@ -233,6 +233,8 @@ export default function App() {
         title="智能储能电站监控大屏" 
         isSimulating={isSimulating} 
         onToggleSimulation={() => setIsSimulating(!isSimulating)} 
+        selectedStationId={selectedStationId}
+        onSelectStation={(id) => setSelectedStationId(id)}
       />
 
       {selectedStationDetail ? (
