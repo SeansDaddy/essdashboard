@@ -10,7 +10,9 @@ import MonitorAlarmPanel from './components/MonitorAlarmPanel';
 import HighFreqAlarmPanel from './components/HighFreqAlarmPanel';
 import RootCausePanel from './components/RootCausePanel';
 import StationDetailView from './components/StationDetailView';
+import HealthOverviewTab from './components/HealthOverviewTab';
 import { mockStationDetails } from './data/mockDetails';
+import { LayoutGrid, HeartPulse, HardDrive, ShieldAlert, Award } from 'lucide-react';
 
 import {
   SiteHealth,
@@ -26,6 +28,7 @@ import {
 export default function App() {
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
   const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<'monitor' | 'health'>('monitor');
 
   // 1. Site Health Rankings (Left-Top - Replacing concentric rings)
   const [siteHealths, setSiteHealths] = useState<SiteHealth[]>([
@@ -237,80 +240,153 @@ export default function App() {
         onSelectStation={(id) => setSelectedStationId(id)}
       />
 
-      {selectedStationDetail ? (
-        <StationDetailView 
-          detail={selectedStationDetail} 
-          onBack={() => setSelectedStationId(null)} 
-        />
-      ) : (
-        /* 2. Responsive 3-Column Bento Grid Layout */
-        <main className="flex-1 w-full max-w-[1920px] mx-auto px-4 md:px-6 mt-4 grid grid-cols-1 xl:grid-cols-4 gap-4">
-          
-          {/* ================= LEFT COLUMN (1/4 Width) ================= */}
-          <section className="xl:col-span-1 flex flex-col space-y-4">
-            
-            {/* Section 1A: Site Health Ranking (REQUESTED MODIFICATION) */}
-            <div className="h-[290px]">
-              <SiteHealthPanel 
-                data={siteHealths} 
-                onSelectStation={(id) => setSelectedStationId(id)}
-              />
-            </div>
+      {/* Main Container wrapping left vertical menu and correct layout view */}
+      <div className="flex-1 w-full flex overflow-hidden">
+        
+        {/* Left vertical navigation bar */}
+        <aside className="w-16 md:w-[76px] bg-[#050b16]/95 border-r border-[#142544]/80 flex flex-col items-center py-6 gap-6 shrink-0 z-40 select-none relative">
+          {/* Futuristic light ribbon effect */}
+          <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-[#00f0ff]/35 via-transparent to-cyan-500/10" />
 
-            {/* Section 1B: High Energy Consumption Ranking */}
-            <div className="h-[230px]">
-              <EnergyRankingPanel stations={energyStations} />
-            </div>
+          {/* Core App branding logo / diagnostics icon */}
+          <div className="flex flex-col items-center gap-1 mb-2">
+            <Award className="text-cyan-400 animate-pulse" size={18} />
+            <span className="text-[8px] font-mono text-[#4d5f80] text-center tracking-tighter">DIAG v4.12</span>
+          </div>
 
-            {/* Section 1C: Real-time Device Connection Status */}
-            <div className="h-[260px]">
-              <DeviceStatusPanel status={deviceStatus} />
-            </div>
+          <div className="h-[1px] w-8 bg-[#142544]/60" />
 
-          </section>
+          {/* Menu Option A: 主监控大屏 (Core Monitor Screen) */}
+          <button
+            onClick={() => setActiveMenu('monitor')}
+            className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer border ${
+              activeMenu === 'monitor'
+                ? 'bg-[#1e40a6]/40 text-[#00f0ff] border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold'
+                : 'bg-transparent text-slate-400 border-transparent hover:text-slate-100 hover:bg-[#102447]/30'
+            }`}
+            title="主监控大屏 (Core Monitor System)"
+          >
+            <LayoutGrid size={18} />
+            <span className="text-[9px] font-sans scale-90 tracking-tight">监控大屏</span>
+          </button>
 
-          {/* ================= MIDDLE COLUMN (2/4 Width - Major Focus) ================= */}
-          <section className="xl:col-span-2 flex flex-col space-y-4">
-            
-            {/* Section 2A: Alarm severity level summaries (REQUESTED MODIFICATION) */}
-            <div className="h-auto">
-              <AlarmSummaryPanel summary={alarmSummary} />
-            </div>
+          {/* Menu Option B: 健康度查看 (Detailed Multidimensional Health Viewer) */}
+          <button
+            onClick={() => setActiveMenu('health')}
+            className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer border ${
+              activeMenu === 'health'
+                ? 'bg-[#1e40a6]/40 text-[#00f0ff] border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold'
+                : 'bg-transparent text-slate-400 border-transparent hover:text-slate-100 hover:bg-[#102447]/30'
+            }`}
+            title="健康度多级分类巡检"
+          >
+            <HeartPulse size={18} />
+            <span className="text-[9px] font-sans scale-90 tracking-tight">健康巡检</span>
+          </button>
 
-            {/* Section 2B: Interactive Schematic Vector Map */}
-            <div className="flex-1 min-h-[340px] h-[360px]">
-              <MapPanel nodes={mapNodes} />
-            </div>
+          {/* Lower status icons info */}
+          <div className="mt-auto flex flex-col items-center gap-1 text-[8px] font-mono text-slate-500">
+            <span className="cursor-help hover:text-cyan-400" title="自研诊断模块已激活-状态安全">🛡️ VERIFIED</span>
+          </div>
+        </aside>
 
-            {/* Section 2C: Performance and Alarm Historic Trends */}
-            <div className="h-[220px]">
-              <PerformanceTrendPanel trendData={trendData} />
-            </div>
+        {/* Core content rendering area */}
+        <div className="flex-1 overflow-y-auto">
+          {activeMenu === 'health' ? (
+            /* Multi-dimensional health viewing list */
+            <HealthOverviewTab 
+              initialDimension={
+                selectedStationId 
+                  ? 'site' 
+                  : 'region'
+              }
+              selectedStationId={selectedStationId}
+              onSelectStation={(id) => {
+                setSelectedStationId(id);
+                // Switch back to monitoring mode if they entered deep BMS details click
+                if (id) {
+                  setActiveMenu('monitor');
+                }
+              }}
+            />
+          ) : selectedStationDetail ? (
+            /* Selected single BMS station details */
+            <StationDetailView 
+              detail={selectedStationDetail} 
+              onBack={() => setSelectedStationId(null)} 
+            />
+          ) : (
+            /* 2. Responsive 3-Column Bento Grid Layout of core monitor dashboard */
+            <main className="w-full max-w-[1920px] mx-auto px-4 md:px-6 mt-4 grid grid-cols-1 xl:grid-cols-4 gap-4">
+              
+              {/* ================= LEFT COLUMN (1/4 Width) ================= */}
+              <section className="xl:col-span-1 flex flex-col space-y-4">
+                
+                {/* Section 1A: Site Health Ranking */}
+                <div className="h-[290px]">
+                  <SiteHealthPanel 
+                    data={siteHealths} 
+                    onSelectStation={(id) => setSelectedStationId(id)}
+                  />
+                </div>
 
-          </section>
+                {/* Section 1B: High Energy Consumption Ranking */}
+                <div className="h-[230px]">
+                  <EnergyRankingPanel stations={energyStations} />
+                </div>
 
-          {/* ================= RIGHT COLUMN (1/4 Width) ================= */}
-          <section className="xl:col-span-1 flex flex-col space-y-4">
-            
-            {/* Section 3A: Monitor Alarm Categorized donut */}
-            <div className="h-[230px]">
-              <MonitorAlarmPanel stats={monitorAlarms} />
-            </div>
+                {/* Section 1C: Real-time Device Connection Status */}
+                <div className="h-[260px]">
+                  <DeviceStatusPanel status={deviceStatus} />
+                </div>
 
-            {/* Section 3B: High Frequency Warnings ranking listing */}
-            <div className="h-[270px]">
-              <HighFreqAlarmPanel alarms={highFreqWarnings} />
-            </div>
+              </section>
 
-            {/* Section 3C: Root Cause Analysis gauge */}
-            <div className="h-[260px]">
-              <RootCausePanel />
-            </div>
+              {/* ================= MIDDLE COLUMN (2/4 Width - Major Focus) ================= */}
+              <section className="xl:col-span-2 flex flex-col space-y-4">
+                
+                {/* Section 2A: Alarm severity level summaries */}
+                <div className="h-auto">
+                  <AlarmSummaryPanel summary={alarmSummary} />
+                </div>
 
-          </section>
+                {/* Section 2B: Interactive Schematic Vector Map */}
+                <div className="flex-1 min-h-[340px] h-[360px]">
+                  <MapPanel nodes={mapNodes} />
+                </div>
 
-        </main>
-      )}
+                {/* Section 2C: Performance and Alarm Historic Trends */}
+                <div className="h-[220px]">
+                  <PerformanceTrendPanel trendData={trendData} />
+                </div>
+
+              </section>
+
+              {/* ================= RIGHT COLUMN (1/4 Width) ================= */}
+              <section className="xl:col-span-1 flex flex-col space-y-4">
+                
+                {/* Section 3A: Monitor Alarm Categorized donut */}
+                <div className="h-[230px]">
+                  <MonitorAlarmPanel stats={monitorAlarms} />
+                </div>
+
+                {/* Section 3B: High Frequency Warnings ranking listing */}
+                <div className="h-[270px]">
+                  <HighFreqAlarmPanel alarms={highFreqWarnings} />
+                </div>
+
+                {/* Section 3C: Root Cause Analysis gauge */}
+                <div className="h-[260px]">
+                  <RootCausePanel />
+                </div>
+
+              </section>
+
+            </main>
+          )}
+        </div>
+
+      </div>
     </div>
   );
 }
