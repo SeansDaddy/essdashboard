@@ -248,65 +248,73 @@ export default function App() {
     ? STATIONS.filter(s => s.cust === selectedCustomerName).map(s => s.id)
     : null;
 
+  // 根据所选代表处过滤各数据源
+  const repStationIds = selectedRepOfficeName
+    ? STATIONS.filter(s => s.rep === selectedRepOfficeName).map(s => s.id)
+    : null;
+
+  // 优先用代表处，若无则用客户
+  const activeFilterIds = repStationIds || customerStationIds;
+
   const filteredSiteHealths = useMemo(() => {
-    if (!customerStationIds) return siteHealths;
-    return siteHealths.filter(s => customerStationIds.includes(s.id));
-  }, [siteHealths, customerStationIds]);
+    if (!activeFilterIds) return siteHealths;
+    return siteHealths.filter(s => activeFilterIds.includes(s.id));
+  }, [siteHealths, activeFilterIds]);
 
   const filteredEnergyStations = useMemo(() => {
-    if (!customerStationIds) return energyStations;
-    const names = new Set(STATIONS.filter(s => customerStationIds.includes(s.id)).map(s => s.name));
+    if (!activeFilterIds) return energyStations;
+    const names = new Set(STATIONS.filter(s => activeFilterIds.includes(s.id)).map(s => s.name));
     return energyStations.filter(e => names.has(e.name));
-  }, [energyStations, customerStationIds]);
+  }, [energyStations, activeFilterIds]);
 
   const filteredDeviceStatus = useMemo(() => {
-    if (!customerStationIds) return deviceStatus;
-    const names = new Set(STATIONS.filter(s => customerStationIds.includes(s.id)).map(s => s.name));
+    if (!activeFilterIds) return deviceStatus;
+    const names = new Set(STATIONS.filter(s => activeFilterIds.includes(s.id)).map(s => s.name));
     const filteredList = deviceStatus.list.filter(d => names.has(d.name));
     const totalOnline = filteredList.reduce((sum, d) => sum + Math.floor(d.value * 0.95), 0);
     const totalOffline = filteredList.reduce((sum, d) => sum + Math.floor(d.value * 0.05), 0);
     return { online: totalOnline || 2400, offline: totalOffline || 80, list: filteredList };
-  }, [deviceStatus, customerStationIds]);
+  }, [deviceStatus, activeFilterIds]);
 
   const filteredAlarmSummary = useMemo(() => {
-    if (!customerStationIds) return alarmSummary;
-    const ratio = customerStationIds.length / STATIONS.length;
+    if (!activeFilterIds) return alarmSummary;
+    const ratio = activeFilterIds.length / STATIONS.length;
     return {
       fatal: Math.max(1, Math.round(alarmSummary.fatal * ratio)),
       urgent: Math.max(10, Math.round(alarmSummary.urgent * ratio)),
       important: Math.max(30, Math.round(alarmSummary.important * ratio)),
       warning: Math.max(60, Math.round(alarmSummary.warning * ratio)),
     };
-  }, [alarmSummary, customerStationIds]);
+  }, [alarmSummary, activeFilterIds]);
 
   const filteredMapNodes = useMemo(() => {
-    if (!customerStationIds) return mapNodes;
+    if (!activeFilterIds) return mapNodes;
     return mapNodes.filter(n => {
       const st = STATIONS.find(s => s.name.includes(n.name.replace('站节点', '')));
-      return st && customerStationIds.includes(st.id);
+      return st && activeFilterIds.includes(st.id);
     });
-  }, [mapNodes, customerStationIds]);
+  }, [mapNodes, activeFilterIds]);
 
   const filteredMonitorAlarms = useMemo(() => {
-    if (!customerStationIds) return monitorAlarms;
-    const ratio = customerStationIds.length / STATIONS.length;
+    if (!activeFilterIds) return monitorAlarms;
+    const ratio = activeFilterIds.length / STATIONS.length;
     return monitorAlarms.map(a => ({ ...a, value: Math.max(10, Math.round(a.value * ratio)) }));
-  }, [monitorAlarms, customerStationIds]);
+  }, [monitorAlarms, activeFilterIds]);
 
   const filteredHighFreqWarnings = useMemo(() => {
-    if (!customerStationIds) return highFreqWarnings;
-    const ratio = customerStationIds.length / STATIONS.length;
+    if (!activeFilterIds) return highFreqWarnings;
+    const ratio = activeFilterIds.length / STATIONS.length;
     return highFreqWarnings.map(w => ({ ...w, value: Math.max(1, Math.round(w.value * ratio)) }));
-  }, [highFreqWarnings, customerStationIds]);
+  }, [highFreqWarnings, activeFilterIds]);
 
   const filteredTrendData = useMemo(() => {
-    if (!customerStationIds) return trendData;
-    const ratio = customerStationIds.length / STATIONS.length;
+    if (!activeFilterIds) return trendData;
+    const ratio = activeFilterIds.length / STATIONS.length;
     return trendData.map(t => ({
       ...t,
       alarmCount: Math.max(20, Math.round(t.alarmCount * ratio)),
     }));
-  }, [trendData, customerStationIds]);
+  }, [trendData, activeFilterIds]);
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-100 flex flex-col font-sans select-none overflow-x-hidden pb-6">
@@ -317,8 +325,10 @@ export default function App() {
         onToggleSimulation={() => setIsSimulating(!isSimulating)}
         selectedStationId={selectedStationId}
         selectedCustomerName={selectedCustomerName}
+        selectedRepOfficeName={selectedRepOfficeName}
         onSelectStation={(id) => setSelectedStationId(id)}
         onSelectCustomer={(name) => setSelectedCustomerName(name)}
+        onSelectRep={(name) => setSelectedRepOfficeName(name)}
       />
 
       {/* Main Container wrapping left vertical menu and correct layout view */}

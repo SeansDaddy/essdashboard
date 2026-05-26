@@ -22,8 +22,10 @@ interface HeaderProps {
   title: string;
   selectedStationId: string | null;
   selectedCustomerName?: string | null;
+  selectedRepOfficeName?: string | null;
   onSelectStation: (id: string | null) => void;
   onSelectCustomer?: (name: string | null) => void;
+  onSelectRep?: (name: string | null) => void;
 }
 
 const STATIONS = [
@@ -35,14 +37,16 @@ const STATIONS = [
   { id: 'h6', name: '广州天河路储能站', rep: '广东代表处', cust: '南方电网' },
 ];
 
-export default function Header({ 
-  isSimulating, 
-  onToggleSimulation, 
-  title, 
+export default function Header({
+  isSimulating,
+  onToggleSimulation,
+  title,
   selectedStationId,
   selectedCustomerName,
+  selectedRepOfficeName,
   onSelectStation,
-  onSelectCustomer
+  onSelectCustomer,
+  onSelectRep
 }: HeaderProps) {
   const [time, setTime] = useState<string>('');
   const [date, setDate] = useState<string>('');
@@ -98,10 +102,9 @@ export default function Header({
 
   const handleSelectRep = (repName: string | null) => {
     if (!repName) {
-      onSelectStation(null);
+      onSelectRep(null);
     } else {
-      const match = STATIONS.find(s => s.rep === repName);
-      if (match) onSelectStation(match.id);
+      onSelectRep(repName);
     }
     setActiveDropdown(null);
   };
@@ -155,7 +158,7 @@ export default function Header({
             }`}
           >
             <Building2 size={12} className="text-cyan-400/80 shrink-0" />
-            <span>{currentStation ? currentStation.rep : '全部代表处'}</span>
+            <span>{selectedRepOfficeName || (currentStation ? currentStation.rep : '全部代表处')}</span>
             {followedIds.length > 0 && (
               <span className="ml-1 px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-400 text-[8px] font-bold">{followedIds.length}</span>
             )}
@@ -175,7 +178,7 @@ export default function Header({
                   key={rep}
                   onClick={() => handleSelectRep(rep)}
                   className={`px-3 py-2 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] flex items-center justify-between ${
-                    currentStation?.rep === rep ? 'bg-[#102447] text-[#00f0ff]' : 'text-slate-300'
+                    selectedRepOfficeName === rep ? 'bg-[#102447] text-[#00f0ff]' : 'text-slate-300'
                   }`}
                 >
                   <span>{rep}</span>
