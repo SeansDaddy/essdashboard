@@ -64,6 +64,634 @@ export interface HealthMetricsSite {
   pe: string;
 }
 
+// Customer-level detail view data
+export interface CustomerDetail {
+  customerName: string;
+  customerLevel: 'A' | 'B' | 'C';
+  contractNo: string;
+  contractName: string;
+  overallScore: number;
+  level: string;
+  activeAlarmScore: number;
+  warningScore: number;
+  performanceScore: number;
+  deviceStatusScore: number;
+  sites: {
+    stationId: string;
+    siteName: string;
+    overallScore: number;
+    level: string;
+    activeAlarmScore: number;
+    warningScore: number;
+    performanceScore: number;
+    deviceStatusScore: number;
+    issues: Array<{
+      id: string;
+      type: 'alarm' | 'warning' | 'abnormal';
+      level: 'L1' | 'L2' | 'L3' | 'L4';
+      device: string;
+      reason: string;
+      suggestion: string;
+    }>;
+  }[];
+}
+
+// RepOffice-level detail view data
+export interface RepOfficeDetail {
+  rep: string;
+  country: string;
+  overallScore: number;
+  level: string;
+  activeAlarmScore: number;
+  warningScore: number;
+  performanceScore: number;
+  deviceStatusScore: number;
+  customers: {
+    customerName: string;
+    customerLevel: 'A' | 'B' | 'C';
+    overallScore: number;
+    level: string;
+    activeAlarmScore: number;
+    warningScore: number;
+    performanceScore: number;
+    deviceStatusScore: number;
+    sites: {
+      stationId: string;
+      siteName: string;
+      overallScore: number;
+      level: string;
+      activeAlarmScore: number;
+      warningScore: number;
+      performanceScore: number;
+      deviceStatusScore: number;
+      issues: Array<{
+        id: string;
+        type: 'alarm' | 'warning' | 'abnormal';
+        level: 'L1' | 'L2' | 'L3' | 'L4';
+        device: string;
+        reason: string;
+        suggestion: string;
+      }>;
+    }[];
+  }[];
+}
+
+export const mockCustomerDetails: Record<string, CustomerDetail> = {
+  '华润电力': {
+    customerName: '华润电力',
+    customerLevel: 'A',
+    contractNo: 'CON-2026-0081',
+    contractName: '华润福建东山储能EPC一期',
+    overallScore: 98,
+    level: '优秀',
+    activeAlarmScore: 99,
+    warningScore: 97,
+    performanceScore: 98,
+    deviceStatusScore: 98,
+    sites: [
+      {
+        stationId: 'h1',
+        siteName: '龙岩东山储能电站',
+        overallScore: 98,
+        level: '优秀',
+        activeAlarmScore: 99,
+        warningScore: 97,
+        performanceScore: 98,
+        deviceStatusScore: 98,
+        issues: [
+          {
+            id: 'iss_c1_1',
+            type: 'warning',
+            level: 'L4',
+            device: '3号电池舱集控空调冷水机组-P01',
+            reason: '循环泵运转时间累计超警限',
+            suggestion: '例行检查泵体轴承振动与润滑程度，伺机进行保养或更换备件。'
+          },
+          {
+            id: 'iss_c1_2',
+            type: 'abnormal',
+            level: 'L4',
+            device: '2号储能变流器(PCS)',
+            reason: '机组无功功率偏离设定指令曲线约1.5%',
+            suggestion: '后台微调无功补偿控制系数，校准电网侧电流互感器采样漂移。'
+          }
+        ]
+      }
+    ]
+  },
+  '南方电网': {
+    customerName: '南方电网',
+    customerLevel: 'A',
+    contractNo: 'CON-2026-0043',
+    contractName: '粤港澳大湾区储能战略合作',
+    overallScore: 78,
+    level: '中等',
+    activeAlarmScore: 74,
+    warningScore: 80,
+    performanceScore: 82,
+    deviceStatusScore: 76,
+    sites: [
+      {
+        stationId: 'h2',
+        siteName: '中山公园储能电站',
+        overallScore: 96,
+        level: '优秀',
+        activeAlarmScore: 98,
+        warningScore: 94,
+        performanceScore: 96,
+        deviceStatusScore: 96,
+        issues: [
+          {
+            id: 'iss_c2_1',
+            type: 'warning',
+            level: 'L3',
+            device: '1A号蓄电池电池簇-第04簇',
+            reason: '第16节电芯内阻同比异常升高8.5%',
+            suggestion: '持续监控该电芯充放电时的温升幅度，在下个检修窗口执行标定测试及阻抗校零。'
+          },
+          {
+            id: 'iss_c2_2',
+            type: 'abnormal',
+            level: 'L4',
+            device: '一楼大厅环境烟雾感知传感器',
+            reason: '光敏传感器镜头表面落尘，引起基准零点微幅漂移',
+            suggestion: '运维人员携无尘布清洁光学透镜，并在系统管理侧手动执行零点标定。'
+          }
+        ]
+      },
+      {
+        stationId: 'h6',
+        siteName: '广州天河路储能站',
+        overallScore: 64,
+        level: '及格',
+        activeAlarmScore: 58,
+        warningScore: 68,
+        performanceScore: 70,
+        deviceStatusScore: 60,
+        issues: [
+          {
+            id: 'iss_c6_1',
+            type: 'alarm',
+            level: 'L1',
+            device: 'A侧1号集装箱BMS能量均衡仪',
+            reason: '电池包单体电芯压差最大升至380mV，偏离放电截止设定值',
+            suggestion: '即刻降载50%运行，降速充放；在线运行强力单平衡策略，对该重度不均极组进行人工保养。'
+          },
+          {
+            id: 'iss_c6_2',
+            type: 'alarm',
+            level: 'L1',
+            device: '变流PCS机柜1B变逆组件',
+            reason: 'IGBT散热基板工作温度达到102.5℃，触发超高温度紧急告警',
+            suggestion: '下调变流器工作负荷，检查IGBT导热硅脂涂抹厚度，排查电子冷却泵电机绕组是否有短路现象。'
+          },
+          {
+            id: 'iss_c6_3',
+            type: 'alarm',
+            level: 'L2',
+            device: '消防备份电源智能切换屏',
+            reason: '主备电源切换演练时，触头接触阻抗明显增大',
+            suggestion: '清扫接触器表面弧尘痕迹，使用触点清洁喷剂去氧化层，若仍有电弧灼伤痕迹则整体拆换。'
+          },
+          {
+            id: 'iss_c6_4',
+            type: 'warning',
+            level: 'L3',
+            device: '储能液冷冷风冷膨胀副水箱LS01',
+            reason: '液位标定浮子指示低液位告警（剩余量低下限8%）',
+            suggestion: '检查液冷回路冷却管是否存在细微沙眼或接头渗露，添加同型号环保防凝乙二醇水冷液。'
+          }
+        ]
+      }
+    ]
+  },
+  '申能股份': {
+    customerName: '申能股份',
+    customerLevel: 'B',
+    contractNo: 'CON-2025-0199',
+    contractName: '申能静安卓网储能示范段',
+    overallScore: 91,
+    level: '优秀',
+    activeAlarmScore: 92,
+    warningScore: 89,
+    performanceScore: 93,
+    deviceStatusScore: 90,
+    sites: [
+      {
+        stationId: 'h3',
+        siteName: '上海静安储能电站',
+        overallScore: 91,
+        level: '优秀',
+        activeAlarmScore: 92,
+        warningScore: 89,
+        performanceScore: 93,
+        deviceStatusScore: 90,
+        issues: [
+          {
+            id: 'iss_c3_1',
+            type: 'alarm',
+            level: 'L2',
+            device: 'BMS电池管理系统 #7采集板',
+            reason: '控制器CAN通讯校验误码率高，触发重发缓存机制',
+            suggestion: '检查采集板末端匹配电阻阻值，排查BMS低压线槽与高压母排之间的电磁屏蔽。'
+          },
+          {
+            id: 'iss_c3_2',
+            type: 'warning',
+            level: 'L3',
+            device: '集装箱机房高精密空调-AC02',
+            reason: '制冷回路低压侧冷媒压力偏低，影响系统换热效能',
+            suggestion: '使用卤素检漏仪排查接口微动磨损，检漏修复后补加R410A冷媒。'
+          }
+        ]
+      }
+    ]
+  },
+  '国家电网': {
+    customerName: '国家电网',
+    customerLevel: 'A',
+    contractNo: 'CON-2026-0105',
+    contractName: '国网北京核心商圈低碳试点',
+    overallScore: 85,
+    level: '良好',
+    activeAlarmScore: 82,
+    warningScore: 88,
+    performanceScore: 84,
+    deviceStatusScore: 86,
+    sites: [
+      {
+        stationId: 'h4',
+        siteName: '北京西单储能电站',
+        overallScore: 85,
+        level: '良好',
+        activeAlarmScore: 82,
+        warningScore: 88,
+        performanceScore: 84,
+        deviceStatusScore: 86,
+        issues: [
+          {
+            id: 'iss_c4_1',
+            type: 'alarm',
+            level: 'L2',
+            device: '储能电池舱2排 #12电池簇',
+            reason: '2号单体电芯放电温升偏高，最大簇内温差达4.8℃',
+            suggestion: '调节液冷分配阀开度，增大气流循环；检测液冷管接头流量，清洗水阻较大的毛细管。'
+          },
+          {
+            id: 'iss_c4_2',
+            type: 'abnormal',
+            level: 'L3',
+            device: 'PCS并网控制柜-主合闸开关 K01',
+            reason: '合闸辅助弹簧储能电机工作电流偏大，有卡阻迹象',
+            suggestion: '使用专用水剂清洗连杆传动机构，加注二硫化钼润滑脂进行防卡阻养护。'
+          },
+          {
+            id: 'iss_c4_3',
+            type: 'warning',
+            level: 'L4',
+            device: '集装箱防爆机械新风机-03号',
+            reason: '进出风压差传感器反馈差压值逼近预警临界值',
+            suggestion: '拆卸并更换一次风道初效纸质滤网，恢复风机标准换气压差。'
+          }
+        ]
+      }
+    ]
+  },
+  '成都城投储能': {
+    customerName: '成都城投储能',
+    customerLevel: 'C',
+    contractNo: 'CON-2026-0244',
+    contractName: '成都春熙路超级虚拟电厂建设',
+    overallScore: 78,
+    level: '中等',
+    activeAlarmScore: 75,
+    warningScore: 80,
+    performanceScore: 77,
+    deviceStatusScore: 80,
+    sites: [
+      {
+        stationId: 'h5',
+        siteName: '成都春熙路储能站',
+        overallScore: 78,
+        level: '中等',
+        activeAlarmScore: 75,
+        warningScore: 80,
+        performanceScore: 77,
+        deviceStatusScore: 80,
+        issues: [
+          {
+            id: 'iss_c5_1',
+            type: 'alarm',
+            level: 'L1',
+            device: '直流防雷汇流箱-03号机',
+            reason: '主回路断路器触头反馈电平不匹配，疑似静触点疲劳粘连',
+            suggestion: '【重要】立即将该充放电支路降额切出；实施离线停电，更换合闸真空接触器。'
+          },
+          {
+            id: 'iss_c5_2',
+            type: 'alarm',
+            level: 'L2',
+            device: '直流侧高压母排漏电保护器',
+            reason: 'BMS正极对地绝缘电阻降至150kΩ（系统安全标准>500kΩ）',
+            suggestion: '检查箱体凝露及高压接线座污物，启动充电机舱抽湿加热模块，用万用表逐段排查故障点。'
+          },
+          {
+            id: 'iss_c5_3',
+            type: 'abnormal',
+            level: 'L3',
+            device: '储能控制室环境加湿变送器',
+            reason: '底部角落测点空气湿度突破92%RH，容易诱发电气爬电',
+            suggestion: '手动开启机组紧急抽湿，排查集装箱箱板连接防水密封胶条老化破裂渗水情况。'
+          }
+        ]
+      }
+    ]
+  }
+};
+
+export const mockRepOfficeDetails: Record<string, RepOfficeDetail> = {
+  '福建代表处': {
+    rep: '福建代表处',
+    country: '中国',
+    overallScore: 98,
+    level: '优秀',
+    activeAlarmScore: 99,
+    warningScore: 97,
+    performanceScore: 98,
+    deviceStatusScore: 98,
+    customers: [
+      {
+        customerName: '华润电力',
+        customerLevel: 'A',
+        overallScore: 98,
+        level: '优秀',
+        activeAlarmScore: 99,
+        warningScore: 97,
+        performanceScore: 98,
+        deviceStatusScore: 98,
+        sites: [
+          {
+            stationId: 'h1',
+            siteName: '龙岩东山储能电站',
+            overallScore: 98,
+            level: '优秀',
+            activeAlarmScore: 99,
+            warningScore: 97,
+            performanceScore: 98,
+            deviceStatusScore: 98,
+            issues: [
+              {
+                id: 'iss_r1_1',
+                type: 'warning',
+                level: 'L4',
+                device: '3号电池舱集控空调冷水机组-P01',
+                reason: '循环泵运转时间累计超警限',
+                suggestion: '例行检查泵体轴承振动与润滑程度，伺机进行保养或更换备件。'
+              },
+              {
+                id: 'iss_r1_2',
+                type: 'abnormal',
+                level: 'L4',
+                device: '2号储能变流器(PCS)',
+                reason: '机组无功功率偏离设定指令曲线约1.5%',
+                suggestion: '后台微调无功补偿控制系数，校准电网侧电流互感器采样漂移。'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  '广东代表处': {
+    rep: '广东代表处',
+    country: '中国',
+    overallScore: 78,
+    level: '中等',
+    activeAlarmScore: 74,
+    warningScore: 80,
+    performanceScore: 82,
+    deviceStatusScore: 76,
+    customers: [
+      {
+        customerName: '南方电网',
+        customerLevel: 'A',
+        overallScore: 78,
+        level: '中等',
+        activeAlarmScore: 74,
+        warningScore: 80,
+        performanceScore: 82,
+        deviceStatusScore: 76,
+        sites: [
+          {
+            stationId: 'h2',
+            siteName: '中山公园储能电站',
+            overallScore: 96,
+            level: '优秀',
+            activeAlarmScore: 98,
+            warningScore: 94,
+            performanceScore: 96,
+            deviceStatusScore: 96,
+            issues: [
+              {
+                id: 'iss_r2_1',
+                type: 'warning',
+                level: 'L3',
+                device: '1A号蓄电池电池簇-第04簇',
+                reason: '第16节电芯内阻同比异常升高8.5%',
+                suggestion: '持续监控该电芯充放电时的温升幅度，在下个检修窗口执行标定测试及阻抗校零。'
+              }
+            ]
+          },
+          {
+            stationId: 'h6',
+            siteName: '广州天河路储能站',
+            overallScore: 64,
+            level: '及格',
+            activeAlarmScore: 58,
+            warningScore: 68,
+            performanceScore: 70,
+            deviceStatusScore: 60,
+            issues: [
+              {
+                id: 'iss_r6_1',
+                type: 'alarm',
+                level: 'L1',
+                device: 'A侧1号集装箱BMS能量均衡仪',
+                reason: '电池包单体电芯压差最大升至380mV',
+                suggestion: '即刻降载50%运行，降速充放。'
+              },
+              {
+                id: 'iss_r6_2',
+                type: 'alarm',
+                level: 'L1',
+                device: '变流PCS机柜1B变逆组件',
+                reason: 'IGBT散热基板工作温度达到102.5℃',
+                suggestion: '下调变流器工作负荷，检查散热系统。'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  '上海代表处': {
+    rep: '上海代表处',
+    country: '中国',
+    overallScore: 91,
+    level: '优秀',
+    activeAlarmScore: 92,
+    warningScore: 89,
+    performanceScore: 93,
+    deviceStatusScore: 90,
+    customers: [
+      {
+        customerName: '申能股份',
+        customerLevel: 'B',
+        overallScore: 91,
+        level: '优秀',
+        activeAlarmScore: 92,
+        warningScore: 89,
+        performanceScore: 93,
+        deviceStatusScore: 90,
+        sites: [
+          {
+            stationId: 'h3',
+            siteName: '上海静安储能电站',
+            overallScore: 91,
+            level: '优秀',
+            activeAlarmScore: 92,
+            warningScore: 89,
+            performanceScore: 93,
+            deviceStatusScore: 90,
+            issues: [
+              {
+                id: 'iss_r3_1',
+                type: 'alarm',
+                level: 'L2',
+                device: 'BMS电池管理系统 #7采集板',
+                reason: '控制器CAN通讯校验误码率高，触发重发缓存机制',
+                suggestion: '检查采集板末端匹配电阻阻值，排查BMS低压线槽与高压母排之间的电磁屏蔽。'
+              },
+              {
+                id: 'iss_r3_2',
+                type: 'warning',
+                level: 'L3',
+                device: '集装箱机房高精密空调-AC02',
+                reason: '制冷回路低压侧冷媒压力偏低，影响系统换热效能',
+                suggestion: '使用卤素检漏仪排查接口微动磨损，检漏修复后补加R410A冷媒。'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  '北京代表处': {
+    rep: '北京代表处',
+    country: '中国',
+    overallScore: 85,
+    level: '良好',
+    activeAlarmScore: 82,
+    warningScore: 88,
+    performanceScore: 84,
+    deviceStatusScore: 86,
+    customers: [
+      {
+        customerName: '国家电网',
+        customerLevel: 'A',
+        overallScore: 85,
+        level: '良好',
+        activeAlarmScore: 82,
+        warningScore: 88,
+        performanceScore: 84,
+        deviceStatusScore: 86,
+        sites: [
+          {
+            stationId: 'h4',
+            siteName: '北京西单储能电站',
+            overallScore: 85,
+            level: '良好',
+            activeAlarmScore: 82,
+            warningScore: 88,
+            performanceScore: 84,
+            deviceStatusScore: 86,
+            issues: [
+              {
+                id: 'iss_r4_1',
+                type: 'alarm',
+                level: 'L2',
+                device: '储能电池舱2排 #12电池簇',
+                reason: '2号单体电芯放电温升偏高，最大簇内温差达4.8℃',
+                suggestion: '调节液冷分配阀开度，增大气流循环。'
+              },
+              {
+                id: 'iss_r4_2',
+                type: 'abnormal',
+                level: 'L3',
+                device: 'PCS并网控制柜-主合闸开关 K01',
+                reason: '合闸辅助弹簧储能电机工作电流偏大，有卡阻迹象',
+                suggestion: '使用专用水剂清洗连杆传动机构，加注二硫化钼润滑脂。'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  '四川代表处': {
+    rep: '四川代表处',
+    country: '中国',
+    overallScore: 78,
+    level: '中等',
+    activeAlarmScore: 75,
+    warningScore: 80,
+    performanceScore: 77,
+    deviceStatusScore: 80,
+    customers: [
+      {
+        customerName: '成都城投储能',
+        customerLevel: 'C',
+        overallScore: 78,
+        level: '中等',
+        activeAlarmScore: 75,
+        warningScore: 80,
+        performanceScore: 77,
+        deviceStatusScore: 80,
+        sites: [
+          {
+            stationId: 'h5',
+            siteName: '成都春熙路储能站',
+            overallScore: 78,
+            level: '中等',
+            activeAlarmScore: 75,
+            warningScore: 80,
+            performanceScore: 77,
+            deviceStatusScore: 80,
+            issues: [
+              {
+                id: 'iss_r5_1',
+                type: 'alarm',
+                level: 'L1',
+                device: '直流防雷汇流箱-03号机',
+                reason: '主回路断路器触头反馈电平不匹配，疑似静触点疲劳粘连',
+                suggestion: '【重要】立即将该充放电支路降额切出；实施离线停电，更换合闸真空接触器。'
+              },
+              {
+                id: 'iss_r5_2',
+                type: 'alarm',
+                level: 'L2',
+                device: '直流侧高压母排漏电保护器',
+                reason: 'BMS正极对地绝缘电阻降至150kΩ',
+                suggestion: '检查箱体凝露及高压接线座污物，启动充电机舱抽湿加热模块。'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+};
+
 // Alarm & Warning Link Targets
 export interface DeepLinkItem {
   id: string;

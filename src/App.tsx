@@ -10,8 +10,11 @@ import MonitorAlarmPanel from './components/MonitorAlarmPanel';
 import HighFreqAlarmPanel from './components/HighFreqAlarmPanel';
 import RootCausePanel from './components/RootCausePanel';
 import StationDetailView from './components/StationDetailView';
+import CustomerDetailView from './components/CustomerDetailView';
+import RepOfficeDetailView from './components/RepOfficeDetailView';
 import HealthOverviewTab from './components/HealthOverviewTab';
 import { mockStationDetails } from './data/mockDetails';
+import { mockCustomerDetails, mockRepOfficeDetails } from './data/healthMetricsData';
 import { LayoutGrid, HeartPulse, HardDrive, ShieldAlert, Award, AlertTriangle, Bell, Gauge, MapPin, Database } from 'lucide-react';
 
 import {
@@ -28,6 +31,8 @@ import {
 export default function App() {
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
   const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
+  const [selectedCustomerName, setSelectedCustomerName] = useState<string | null>(null);
+  const [selectedRepOfficeName, setSelectedRepOfficeName] = useState<string | null>(null);
   const [activeMenu, setActiveMenu] = useState<'monitor' | 'health' | 'alarm' | 'warning' | 'device' | 'site' | 'data'>('monitor');
 
   // 1. Site Health Rankings (Left-Top - Replacing concentric rings)
@@ -380,6 +385,12 @@ export default function App() {
                 }
               }}
               onNavigate={(tab) => setActiveMenu(tab)}
+              onCustomerSelect={(name) => {
+                setSelectedCustomerName(name);
+              }}
+              onRepOfficeSelect={(name) => {
+                setSelectedRepOfficeName(name);
+              }}
             />
           ) : activeMenu === 'alarm' ? (
             <div className="flex items-center justify-center h-full text-slate-400">
@@ -421,11 +432,29 @@ export default function App() {
                 <p className="text-xs text-slate-600 mt-2">数据管理页面开发中</p>
               </div>
             </div>
+          ) : selectedCustomerName && mockCustomerDetails[selectedCustomerName] ? (
+            <CustomerDetailView
+              detail={mockCustomerDetails[selectedCustomerName]}
+              onBack={() => setSelectedCustomerName(null)}
+              onSelectStation={(stationId) => {
+                setSelectedStationId(stationId);
+                setActiveMenu('monitor');
+              }}
+            />
+          ) : selectedRepOfficeName && mockRepOfficeDetails[selectedRepOfficeName] ? (
+            <RepOfficeDetailView
+              detail={mockRepOfficeDetails[selectedRepOfficeName]}
+              onBack={() => setSelectedRepOfficeName(null)}
+              onSelectStation={(stationId) => {
+                setSelectedStationId(stationId);
+                setActiveMenu('monitor');
+              }}
+            />
           ) : selectedStationDetail ? (
             /* Selected single BMS station details */
-            <StationDetailView 
-              detail={selectedStationDetail} 
-              onBack={() => setSelectedStationId(null)} 
+            <StationDetailView
+              detail={selectedStationDetail}
+              onBack={() => setSelectedStationId(null)}
             />
           ) : (
             /* 2. Responsive 3-Column Bento Grid Layout of core monitor dashboard */

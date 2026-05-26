@@ -209,57 +209,52 @@ export default function Header({
 
           {activeDropdown === 'customer' && (
             <div className="absolute left-0 mt-1 w-44 bg-[#0a1120]/95 backdrop-blur-md border border-[#1e40a6]/60 rounded-lg shadow-[0_10px_30px_rgba(0,240,255,0.15)] overflow-hidden z-[100] font-mono text-[10px]">
-              <div 
-                onClick={() => handleSelectCustomer(null)}
-                className="px-3 py-2 text-slate-400 hover:bg-[#1e40a6]/40 hover:text-white transition-colors cursor-pointer border-b border-[#142544]/60"
-              >
-                全部客户 (主面板)
-              </div>
-              const sortedCustomers = [...uniqueCustomers].sort((a, b) => {
-                const aStations = STATIONS.filter(s => s.cust === a);
-                const bStations = STATIONS.filter(s => s.cust === b);
-                const aFollowedCount = aStations.filter(s => followedIds.includes(s.id)).length;
-                const bFollowedCount = bStations.filter(s => followedIds.includes(s.id)).length;
-                return bFollowedCount - aFollowedCount;
-              });
-              return sortedCustomers.map(cust => {
-                const custStations = STATIONS.filter(s => s.cust === cust);
-                const custStationIds = custStations.map(s => s.id);
-                const allFollowed = custStationIds.every(id => followedIds.includes(id));
-                return (
-                  <div
-                    key={cust}
-                    onClick={() => handleSelectCustomer(cust)}
-                    className={`px-3 py-2 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] flex items-center justify-between ${
-                      currentStation?.cust === cust ? 'bg-[#102447] text-[#00f0ff]' : 'text-slate-300'
-                    }`}
-                  >
-                    <span>{cust}</span>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          custStationIds.forEach(id => {
-                            if (!followedIds.includes(id)) toggleFollowUtil(id);
-                          });
-                          if (allFollowed) {
-                            custStationIds.forEach(id => toggleFollowUtil(id));
-                          }
-                          setFollowedIds(getFollowedIds());
-                        }}
-                        className="p-0.5 rounded hover:bg-[#1e40a6]/60 transition-all cursor-pointer"
-                        title={allFollowed ? '取消关注' : '关注'}
-                      >
-                        <Star
-                          size={12}
-                          className={allFollowed ? 'fill-yellow-400 text-yellow-400' : 'text-slate-500 hover:text-yellow-400'}
-                        />
-                      </button>
-                      <span className="text-[8px] opacity-65 text-cyan-400">SELECT</span>
+              {(() => {
+                const sortedCustomers = [...uniqueCustomers].sort((a, b) => {
+                  const aStations = STATIONS.filter(s => s.cust === a);
+                  const bStations = STATIONS.filter(s => s.cust === b);
+                  const aFollowedCount = aStations.filter(s => followedIds.includes(s.id)).length;
+                  const bFollowedCount = bStations.filter(s => followedIds.includes(s.id)).length;
+                  return bFollowedCount - aFollowedCount;
+                });
+                return sortedCustomers.map(cust => {
+                  const custStations = STATIONS.filter(s => s.cust === cust);
+                  const custStationIds = custStations.map(s => s.id);
+                  const allFollowed = custStationIds.every(id => followedIds.includes(id));
+                  return (
+                    <div
+                      key={cust}
+                      onClick={() => handleSelectCustomer(cust)}
+                      className={`px-3 py-2 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] flex items-center justify-between ${
+                        currentStation?.cust === cust ? 'bg-[#102447] text-[#00f0ff]' : 'text-slate-300'
+                      }`}
+                    >
+                      <span>{cust}</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            custStationIds.forEach(id => {
+                              if (!followedIds.includes(id)) toggleFollowUtil(id);
+                            });
+                            if (allFollowed) {
+                              custStationIds.forEach(id => toggleFollowUtil(id));
+                            }
+                            setFollowedIds(getFollowedIds());
+                          }}
+                          className="p-0.5 rounded hover:bg-[#1e40a6]/60 transition-all cursor-pointer"
+                          title={allFollowed ? '取消关注' : '关注'}
+                        >
+                          <Star
+                            size={12}
+                            className={allFollowed ? 'fill-[#fbbf24] text-[#fbbf24]' : 'text-slate-500'}
+                          />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
           )}
         </div>

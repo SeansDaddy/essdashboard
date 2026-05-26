@@ -41,13 +41,17 @@ interface HealthOverviewTabProps {
   selectedStationId?: string | null;
   onSelectStation?: (id: string | null) => void;
   onNavigate?: (tab: 'alarm' | 'warning') => void;
+  onCustomerSelect?: (customerName: string) => void;
+  onRepOfficeSelect?: (repName: string) => void;
 }
 
-export default function HealthOverviewTab({ 
+export default function HealthOverviewTab({
   initialDimension = 'region',
   selectedStationId,
   onSelectStation,
-  onNavigate
+  onNavigate,
+  onCustomerSelect,
+  onRepOfficeSelect
 }: HealthOverviewTabProps) {
   const [activeTab, setActiveTab] = useState<DimensionType>(initialDimension);
   const [searchQuery, setSearchQuery] = useState('');
@@ -81,6 +85,23 @@ export default function HealthOverviewTab({
     setSearchQuery('');
     setSortField('overallScore');
     setSortDirection('desc');
+  };
+
+  // Score cell click handler — navigates to customer or rep office detail view
+  const handleScoreCellClick = (item: any, type: 'overall' | 'alarm' | 'warning' | 'perf' | 'device') => {
+    if (type !== 'overall') return; // only navigate on overall score click
+    if (activeTab === 'customer' && onCustomerSelect) {
+      onCustomerSelect((item as HealthMetricsCustomer).customerName);
+    } else if (activeTab === 'repOffice' && onRepOfficeSelect) {
+      onRepOfficeSelect((item as HealthMetricsRepOffice).rep);
+    }
+  };
+
+  // Handle rep office row click (drill-down)
+  const handleRepOfficeRowClick = (rep: string) => {
+    if (onRepOfficeSelect) {
+      onRepOfficeSelect(rep);
+    }
   };
 
   // Helper score color
@@ -163,12 +184,6 @@ export default function HealthOverviewTab({
       });
     }
   }, [activeTab, searchQuery, sortField, sortDirection]);
-
-  // Handle Score cell Click to open dialog
-  const handleScoreCellClick = (row: any, type: 'overall' | 'alarm' | 'warning' | 'perf' | 'device') => {
-    setSelectedScoreRow(row);
-    setScoreModalType(type);
-  };
 
   // Navigate to alarm or warning tab instead of deeplink view
   const triggerNavigate = (type: 'alarm' | 'warning' | 'performance') => {
