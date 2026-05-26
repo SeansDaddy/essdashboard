@@ -40,19 +40,21 @@ type DimensionType = 'region' | 'repOffice' | 'customer' | 'site';
 interface HealthOverviewTabProps {
   initialDimension?: DimensionType;
   selectedStationId?: string | null;
+  selectedCustomerName?: string | null;
   onSelectStation?: (id: string | null) => void;
   onNavigate?: (tab: 'alarm' | 'warning') => void;
-  onCustomerSelect?: (customerName: string) => void;
-  onRepOfficeSelect?: (repName: string) => void;
+  onSelectCustomer?: (customerName: string) => void;
+  onSelectRepOffice?: (repName: string) => void;
 }
 
 export default function HealthOverviewTab({
   initialDimension = 'region',
   selectedStationId,
+  selectedCustomerName,
   onSelectStation,
   onNavigate,
-  onCustomerSelect,
-  onRepOfficeSelect
+  onSelectCustomer,
+  onSelectRepOffice
 }: HealthOverviewTabProps) {
   const [activeTab, setActiveTab] = useState<DimensionType>(initialDimension);
   const [searchQuery, setSearchQuery] = useState('');
@@ -96,8 +98,8 @@ export default function HealthOverviewTab({
 
   // Handle overall score click — repOffice rows show CustomerDetail, customer/site rows show station detail
   const handleOverallScoreClick = (item: any) => {
-    if (activeTab === 'repOffice' && onCustomerSelect) {
-      onCustomerSelect((item as HealthMetricsRepOffice).customerName);
+    if (activeTab === 'repOffice' && onSelectCustomer) {
+      onSelectCustomer((item as HealthMetricsRepOffice).customerName);
     } else if (activeTab === 'customer' && onSelectStation) {
       // Customer tab: click overall score -> go to station detail
       const siteName = (item as HealthMetricsCustomer).siteName;
@@ -105,7 +107,6 @@ export default function HealthOverviewTab({
       onSelectStation(sid);
     } else if (activeTab === 'site' && onSelectStation) {
       // Site tab: click overall score -> also go to station detail (site has stationId in siteName mapping)
-      const deviceName = (item as HealthMetricsSite).deviceName;
       const siteName = (item as HealthMetricsSite).siteName;
       const sid = siteName.includes('龙岩') ? 'h1' : siteName.includes('中山') ? 'h2' : siteName.includes('静安') ? 'h3' : siteName.includes('西单') ? 'h4' : siteName.includes('春熙') ? 'h5' : 'h6';
       onSelectStation(sid);
