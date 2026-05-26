@@ -146,60 +146,6 @@ export default function Header({
 
         <ChevronRight size={11} className="text-[#3b4c6e] shrink-0" />
 
-        {/* 关注的客户 Dropdown */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={onStarredClick || (() => toggleDropdown('starred'))}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md border text-[11px] font-medium transition-all cursor-pointer ${
-              activeDropdown === 'starred'
-                ? 'bg-[#1e40a6]/50 text-[#00f0ff] border-cyan-500/40'
-                : followedIds.length > 0
-                  ? 'bg-[#1e40a6]/20 text-yellow-400 border-[#1e40a6]/30 hover:text-yellow-300'
-                  : 'bg-[#102447]/20 text-slate-500 border-transparent hover:text-slate-300'
-            }`}
-          >
-            <Star size={12} className={`shrink-0 ${followedIds.length > 0 ? 'fill-yellow-400 text-yellow-400' : 'text-slate-500'}`} />
-            <span>关注的客户</span>
-            {followedIds.length > 0 && (
-              <span className="ml-0.5 px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-400 text-[8px] font-bold">{followedIds.length}</span>
-            )}
-          </button>
-
-          {activeDropdown === 'starred' && (
-            <div className="absolute left-0 mt-1 w-48 bg-[#0a1120]/95 backdrop-blur-md border border-[#1e40a6]/60 rounded-lg shadow-[0_10px_30px_rgba(0,240,255,0.15)] overflow-hidden z-[100] font-mono text-[10px]">
-              {(() => {
-                const followedCustomers = [...new Set(
-                  STATIONS.filter(s => followedIds.includes(s.id)).map(s => s.cust)
-                )];
-                if (followedCustomers.length === 0) {
-                  return (
-                    <div className="px-3 py-3 text-slate-500 text-center">
-                      暂未关注任何客户
-                    </div>
-                  );
-                }
-                return followedCustomers.map(cust => (
-                  <div
-                    key={cust}
-                    onClick={() => { onSelectCustomer(cust); setActiveDropdown(null); }}
-                    className={`px-3 py-2 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] ${
-                      selectedCustomerName === cust ? 'bg-[#102447] text-[#00f0ff]' : 'text-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1">
-                      <Star size={10} className="fill-yellow-400 text-yellow-400 shrink-0" />
-                      <span>{cust}</span>
-                    </div>
-                  </div>
-                ));
-              })()}
-            </div>
-          )}
-        </div>
-
-        <ChevronRight size={11} className="text-[#3b4c6e] shrink-0" />
-
         {/* Level 2: 代表处 Dropdown */}
         <div className="relative">
           <button 
@@ -438,6 +384,23 @@ export default function Header({
         >
           {isSimulating ? <EyeOff size={12} /> : <Eye size={12} />}
           <span>{isSimulating ? '暂停模拟' : '开始模拟'}</span>
+        </button>
+
+        <button
+          onClick={onStarredClick}
+          className={`flex items-center gap-1 px-2.5 py-1 rounded border text-[10px] font-medium transition-all cursor-pointer ${
+            activeDropdown === 'starred'
+              ? 'bg-yellow-400/20 text-yellow-400 border-yellow-400/50'
+              : followedIds.length > 0
+                ? 'bg-[#102447]/60 text-yellow-400 border-[#1e40a6]/30 hover:text-yellow-300'
+                : 'bg-[#102447]/40 text-slate-500 border-transparent hover:text-slate-300'
+          }`}
+          title="我关注的客户"
+        >
+          <Star size={12} className={followedIds.length > 0 ? 'fill-yellow-400 text-yellow-400' : ''} />
+          {followedIds.length > 0 && (
+            <span className="text-[9px] font-bold">{followedIds.length}</span>
+          )}
         </button>
 
         <div className="h-8 w-[1px] bg-[#142544] hidden sm:block" />
