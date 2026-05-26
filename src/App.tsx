@@ -331,6 +331,7 @@ export default function App() {
         onSelectStation={(id) => setSelectedStationId(id)}
         onSelectCustomer={(name) => setSelectedCustomerName(name)}
         onSelectRep={(name) => setSelectedRepOfficeName(name)}
+        onStarredClick={() => setActiveMenu('starred')}
       />
 
       {/* Main Container wrapping left vertical menu and correct layout view */}
@@ -375,24 +376,6 @@ export default function App() {
           >
             <HeartPulse size={18} />
             <span className="text-[9px] font-sans scale-90 tracking-tight">健康巡检</span>
-          </button>
-
-          <div className="h-[1px] w-8 bg-[#142544]/60" />
-
-          {/* 关注的客户（独立菜单） */}
-          <button
-            onClick={() => setActiveMenu('starred')}
-            className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer border ${
-              activeMenu === 'starred'
-                ? 'bg-[#1e40a6]/40 text-[#00f0ff] border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold'
-                : followedIds.length > 0
-                  ? 'bg-[#1e40a6]/20 text-yellow-400 border-transparent hover:text-yellow-300 hover:bg-[#1e40a6]/30'
-                  : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:bg-[#102447]/30'
-            }`}
-            title="我关注的客户"
-          >
-            <Star size={18} className={followedIds.length > 0 ? 'fill-yellow-400 text-yellow-400' : ''} />
-            <span className="text-[9px] font-sans scale-90 tracking-tight">关注</span>
           </button>
 
           <div className="h-[1px] w-8 bg-[#142544]/60" />
