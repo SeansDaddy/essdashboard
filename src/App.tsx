@@ -369,7 +369,30 @@ export default function App() {
 
         {/* Core content rendering area */}
         <div className="flex-1 overflow-y-auto">
-          {activeMenu === 'health' ? (
+          {selectedCustomerName && mockCustomerDetails[selectedCustomerName] ? (
+            <CustomerDetailView
+              detail={mockCustomerDetails[selectedCustomerName]}
+              onBack={() => setSelectedCustomerName(null)}
+              onSelectStation={(stationId) => {
+                setSelectedStationId(stationId);
+                setActiveMenu('monitor');
+              }}
+            />
+          ) : selectedRepOfficeName && mockRepOfficeDetails[selectedRepOfficeName] ? (
+            <RepOfficeDetailView
+              detail={mockRepOfficeDetails[selectedRepOfficeName]}
+              onBack={() => setSelectedRepOfficeName(null)}
+              onSelectStation={(stationId) => {
+                setSelectedStationId(stationId);
+                setActiveMenu('monitor');
+              }}
+            />
+          ) : selectedStationDetail ? (
+            <StationDetailView
+              detail={selectedStationDetail}
+              onBack={() => setSelectedStationId(null)}
+            />
+          ) : activeMenu === 'health' ? (
             /* Multi-dimensional health viewing list */
             <HealthOverviewTab
               initialDimension={
@@ -432,30 +455,6 @@ export default function App() {
                 <p className="text-xs text-slate-600 mt-2">数据管理页面开发中</p>
               </div>
             </div>
-          ) : selectedCustomerName && mockCustomerDetails[selectedCustomerName] ? (
-            <CustomerDetailView
-              detail={mockCustomerDetails[selectedCustomerName]}
-              onBack={() => setSelectedCustomerName(null)}
-              onSelectStation={(stationId) => {
-                setSelectedStationId(stationId);
-                setActiveMenu('monitor');
-              }}
-            />
-          ) : selectedRepOfficeName && mockRepOfficeDetails[selectedRepOfficeName] ? (
-            <RepOfficeDetailView
-              detail={mockRepOfficeDetails[selectedRepOfficeName]}
-              onBack={() => setSelectedRepOfficeName(null)}
-              onSelectStation={(stationId) => {
-                setSelectedStationId(stationId);
-                setActiveMenu('monitor');
-              }}
-            />
-          ) : selectedStationDetail ? (
-            /* Selected single BMS station details */
-            <StationDetailView
-              detail={selectedStationDetail}
-              onBack={() => setSelectedStationId(null)}
-            />
           ) : (
             /* 2. Responsive 3-Column Bento Grid Layout of core monitor dashboard */
             <main className="w-full max-w-[1920px] mx-auto px-4 md:px-6 mt-4 grid grid-cols-1 xl:grid-cols-4 gap-4">
