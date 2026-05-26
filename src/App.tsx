@@ -37,12 +37,12 @@ export default function App() {
 
   // 1. Site Health Rankings (Left-Top - Replacing concentric rings)
   const [siteHealths, setSiteHealths] = useState<SiteHealth[]>([
-    { id: 'h1', name: '龙岩东山储能电站', score: 98, status: 'excellent', customerName: '华润电力' },
-    { id: 'h2', name: '中山公园储能电站', score: 96, status: 'excellent', customerName: '南方电网' },
-    { id: 'h3', name: '上海静安储能电站', score: 91, status: 'good', customerName: '申能股份' },
-    { id: 'h4', name: '北京西单储能电站', score: 85, status: 'good', customerName: '国家电网' },
-    { id: 'h5', name: '成都春熙路储能站', score: 78, status: 'fair', customerName: '成都城投储能' },
-    { id: 'h6', name: '广州天河路储能站', score: 64, status: 'poor', customerName: '南方电网' },
+    { id: 'h1', name: '龙岩东山储能电站', score: 98, status: 'excellent' },
+    { id: 'h2', name: '中山公园储能电站', score: 96, status: 'excellent' },
+    { id: 'h3', name: '上海静安储能电站', score: 91, status: 'good' },
+    { id: 'h4', name: '北京西单储能电站', score: 85, status: 'good' },
+    { id: 'h5', name: '成都春熙路储能站', score: 78, status: 'fair' },
+    { id: 'h6', name: '广州天河路储能站', score: 64, status: 'poor' },
   ]);
 
   // 2. Alarm Level Counts (Middle-Top - Replacing host rate, success rate, etc.)
@@ -393,16 +393,6 @@ export default function App() {
                 setActiveMenu('monitor');
               }}
             />
-          ) : selectedCustomerName ? (
-            <CustomerDetailView
-              customerName={selectedCustomerName}
-              detail={mockCustomerDetails[selectedCustomerName]}
-              onBack={() => setSelectedCustomerName(null)}
-              onSelectStation={(stationId) => {
-                setSelectedStationId(stationId);
-                setActiveMenu('monitor');
-              }}
-            />
           ) : selectedStationDetail ? (
             <StationDetailView
               detail={selectedStationDetail}
@@ -417,17 +407,17 @@ export default function App() {
                   : 'region'
               }
               selectedStationId={selectedStationId}
-              selectedCustomerName={selectedCustomerName}
               onSelectStation={(id) => {
                 setSelectedStationId(id);
                 if (id) {
                   setActiveMenu('monitor');
                 }
               }}
-              onSelectCustomer={(name) => {
+              onNavigate={(tab) => setActiveMenu(tab)}
+              onCustomerSelect={(name) => {
                 setSelectedCustomerName(name);
               }}
-              onSelectRepOffice={(name) => {
+              onRepOfficeSelect={(name) => {
                 setSelectedRepOfficeName(name);
               }}
             />
@@ -480,11 +470,9 @@ export default function App() {
                 
                 {/* Section 1A: Site Health Ranking */}
                 <div className="h-[290px]">
-                  <SiteHealthPanel
-                    data={siteHealths}
-                    selectedCustomerName={selectedCustomerName}
+                  <SiteHealthPanel 
+                    data={siteHealths} 
                     onSelectStation={(id) => setSelectedStationId(id)}
-                    onSelectCustomer={(name) => setSelectedCustomerName(name)}
                   />
                 </div>
 

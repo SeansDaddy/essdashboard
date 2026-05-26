@@ -3,7 +3,6 @@ export interface SiteHealth {
   name: string;
   score: number; // Health score (0-100)
   status: 'excellent' | 'good' | 'fair' | 'poor';
-  customerName?: string; // Optional: owner customer name for filtering
 }
 
 export interface AlarmSummary {

@@ -4,12 +4,10 @@ import { ShieldAlert, TrendingUp, Cpu } from 'lucide-react';
 
 interface SiteHealthPanelProps {
   data: SiteHealth[];
-  selectedCustomerName?: string | null;
   onSelectStation?: (id: string) => void;
-  onSelectCustomer?: (name: string) => void;
 }
 
-export default function SiteHealthPanel({ data, selectedCustomerName, onSelectStation, onSelectCustomer }: SiteHealthPanelProps) {
+export default function SiteHealthPanel({ data, onSelectStation }: SiteHealthPanelProps) {
   // Sort by score descending to ensure health ranking is correct
   const sortedData = [...data].sort((a, b) => b.score - a.score);
 
@@ -37,54 +35,42 @@ export default function SiteHealthPanel({ data, selectedCustomerName, onSelectSt
       <div className="flex items-center justify-between mb-3 border-l-2 border-cyan-400 pl-2">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold tracking-wider text-slate-100 font-sans">
-            {selectedCustomerName ? `${selectedCustomerName}站点` : '站点健康度排名'}
+            站点健康度排名
           </span>
           <Cpu size={14} className="text-cyan-400/80 animate-pulse" />
         </div>
-        <div className="flex items-center gap-2">
-          {selectedCustomerName && (
-            <span 
-              onClick={() => onSelectCustomer?.('')}
-              className="text-[9px] bg-cyan-950 text-cyan-400 border border-cyan-800/60 rounded-full px-2 py-0.5 font-mono cursor-pointer hover:bg-cyan-900/50 transition-colors"
-            >
-              全部
-            </span>
-          )}
-          <span className="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800/60 rounded-full px-2 py-0.5 font-mono">
-            HEALTH INDEX
-          </span>
-        </div>
+        <span className="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800/60 rounded-full px-2 py-0.5 font-mono">
+          HEALTH INDEX
+        </span>
       </div>
 
       {/* Helper text */}
       <p className="text-[9px] text-[#5f759e] mb-2 font-sans select-none leading-tight">
-        {selectedCustomerName ? `* 点击客户名查看客户维度健康详情 · 点击电站跳转监控大屏` : `* 点击任一储能站可开启专家诊断健康度详情页面`}
+        * 点击任一储能站可开启专家诊断健康度详情页面
       </p>
 
       {/* Main Content Info */}
       <div className="flex-1 overflow-y-auto pr-1 space-y-3">
-        {sortedData
-          .filter(item => !selectedCustomerName || item.customerName === selectedCustomerName)
-          .map((item, index) => {
+        {sortedData.map((item, index) => {
           const { text, bar, glow } = getStatusColor(item.score);
           const rating = getScoreRating(item.score);
-          const isRealIndex = sortedData.indexOf(item);
           
           return (
             <div 
               key={item.id} 
+              onClick={() => onSelectStation?.(item.id)}
               className="relative group flex flex-col space-y-1 select-none cursor-pointer hover:bg-[#10243d]/40 p-1.5 rounded-lg border border-transparent hover:border-[#1e40a6]/40 transition-all duration-150"
             >
               <div className="flex items-center justify-between font-mono text-xs">
                 <div className="flex items-center gap-2 max-w-[70%]">
                   {/* Rank Badge */}
                   <span className={`flex items-center justify-center w-4 h-4 rounded text-[10px] font-bold ${
-                    isRealIndex === 0 ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40 text-glow-red' :
-                    isRealIndex === 1 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 text-glow-orange' :
-                    isRealIndex === 2 ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40' :
+                    index === 0 ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40 text-glow-red' :
+                    index === 1 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 text-glow-orange' :
+                    index === 2 ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40' :
                     'bg-slate-800 text-slate-400 border border-slate-700'
                   }`}>
-                    {isRealIndex + 1}
+                    {index + 1}
                   </span>
                   <span className="text-slate-300 font-sans truncate text-[11px] group-hover:text-[#00f0ff] font-medium transition-colors">
                     {item.name}
@@ -110,16 +96,6 @@ export default function SiteHealthPanel({ data, selectedCustomerName, onSelectSt
                   <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/40" />
                 </div>
               </div>
-              
-              {/* Customer tag - clickable to go to customer detail */}
-              {item.customerName && selectedCustomerName !== item.customerName && (
-                <div 
-                  onClick={(e) => { e.stopPropagation(); onSelectCustomer?.(item.customerName); }}
-                  className="self-start mt-0.5 text-[8px] font-mono px-1.5 py-0.5 rounded bg-[#102447]/60 border border-[#142544]/60 text-cyan-400/70 hover:text-cyan-300 hover:border-cyan-500/40 cursor-pointer transition-colors"
-                >
-                  {item.customerName}
-                </div>
-              )}
             </div>
           );
         })}
@@ -133,7 +109,7 @@ export default function SiteHealthPanel({ data, selectedCustomerName, onSelectSt
           <span>平均度: <span className="text-slate-300 font-semibold font-mono">90.3%</span></span>
         </div>
         <div>
-          <span>参评站点: <span className="text-cyan-400 font-semibold font-mono">{selectedCustomerName ? sortedData.filter(s => s.customerName === selectedCustomerName).length : sortedData.length}</span> 个</span>
+          <span>参评站点: <span className="text-cyan-400 font-semibold font-mono">24</span> 个</span>
         </div>
       </div>
     </div>
