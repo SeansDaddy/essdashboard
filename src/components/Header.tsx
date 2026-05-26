@@ -202,7 +202,7 @@ export default function Header({
             }`}
           >
             <User size={12} className="text-cyan-400/80 shrink-0" />
-            <span>{currentStation ? currentStation.cust : '全部客户'}</span>
+            <span>{selectedCustomerName || (currentStation ? currentStation.cust : '全部客户')}</span>
             {(() => {
               const followedOfCurrentCust = currentStation
                 ? followedIds.filter(id => STATIONS.find(s => s.id === id)?.cust === currentStation.cust).length
