@@ -371,19 +371,7 @@ export default function App() {
 
         {/* Core content rendering area */}
         <div className="flex-1 overflow-y-auto">
-          {selectedCustomerName && mockCustomerDetails[selectedCustomerName] ? (
-            <CustomerDetailView
-              detail={mockCustomerDetails[selectedCustomerName]}
-              onBack={() => {
-                setSelectedCustomerName(null);
-                setSelectedRepOfficeName(null);
-              }}
-              onSelectStation={(stationId) => {
-                setSelectedStationId(stationId);
-                setActiveMenu('monitor');
-              }}
-            />
-          ) : selectedRepOfficeName && mockRepOfficeDetails[selectedRepOfficeName] ? (
+          {selectedRepOfficeName && mockRepOfficeDetails[selectedRepOfficeName] ? (
             <RepOfficeDetailView
               detail={mockRepOfficeDetails[selectedRepOfficeName]}
               onBack={() => {
