@@ -93,10 +93,10 @@ export default function HealthOverviewTab({
     setScoreModalType(type);
   };
 
-  // Handle overall score click (repOffice rows → RepOfficeDetail, customer rows → CustomerDetail)
+  // Handle overall score click — repOffice rows show CustomerDetail, customer rows show CustomerDetail (site-level drill stays via icon)
   const handleOverallScoreClick = (item: any) => {
-    if (activeTab === 'repOffice' && onRepOfficeSelect) {
-      onRepOfficeSelect((item as HealthMetricsRepOffice).rep);
+    if (activeTab === 'repOffice' && onCustomerSelect) {
+      onCustomerSelect((item as HealthMetricsRepOffice).customerName);
     } else if (activeTab === 'customer' && onCustomerSelect) {
       onCustomerSelect((item as HealthMetricsCustomer).customerName);
     }
