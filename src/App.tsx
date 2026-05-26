@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Header from './components/Header';
 import SiteHealthPanel from './components/SiteHealthPanel';
 import AlarmSummaryPanel from './components/AlarmSummaryPanel';
@@ -27,6 +27,15 @@ import {
   HighFreqAlarm,
   TrendData
 } from './types';
+
+const STATIONS = [
+  { id: 'h1', name: '龙岩东山储能电站', rep: '福建代表处', cust: '华润电力' },
+  { id: 'h2', name: '中山公园储能电站', rep: '广东代表处', cust: '南方电网' },
+  { id: 'h3', name: '上海静安储能电站', rep: '上海代表处', cust: '申能股份' },
+  { id: 'h4', name: '北京西单储能电站', rep: '北京代表处', cust: '国家电网' },
+  { id: 'h5', name: '成都春熙路储能站', rep: '四川代表处', cust: '成都城投储能' },
+  { id: 'h6', name: '广州天河路储能站', rep: '广东代表处', cust: '南方电网' },
+];
 
 export default function App() {
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
@@ -233,6 +242,71 @@ export default function App() {
   };
 
   const selectedStationDetail = getSelectedStationDetail();
+
+  // 根据所选客户过滤各数据源
+  const customerStationIds = selectedCustomerName
+    ? STATIONS.filter(s => s.cust === selectedCustomerName).map(s => s.id)
+    : null;
+
+  const filteredSiteHealths = useMemo(() => {
+    if (!customerStationIds) return siteHealths;
+    return siteHealths.filter(s => customerStationIds.includes(s.id));
+  }, [siteHealths, customerStationIds]);
+
+  const filteredEnergyStations = useMemo(() => {
+    if (!customerStationIds) return energyStations;
+    const names = new Set(STATIONS.filter(s => customerStationIds.includes(s.id)).map(s => s.name));
+    return energyStations.filter(e => names.has(e.name));
+  }, [energyStations, customerStationIds]);
+
+  const filteredDeviceStatus = useMemo(() => {
+    if (!customerStationIds) return deviceStatus;
+    const names = new Set(STATIONS.filter(s => customerStationIds.includes(s.id)).map(s => s.name));
+    const filteredList = deviceStatus.list.filter(d => names.has(d.name));
+    const totalOnline = filteredList.reduce((sum, d) => sum + Math.floor(d.value * 0.95), 0);
+    const totalOffline = filteredList.reduce((sum, d) => sum + Math.floor(d.value * 0.05), 0);
+    return { online: totalOnline || 2400, offline: totalOffline || 80, list: filteredList };
+  }, [deviceStatus, customerStationIds]);
+
+  const filteredAlarmSummary = useMemo(() => {
+    if (!customerStationIds) return alarmSummary;
+    const ratio = customerStationIds.length / STATIONS.length;
+    return {
+      fatal: Math.max(1, Math.round(alarmSummary.fatal * ratio)),
+      urgent: Math.max(10, Math.round(alarmSummary.urgent * ratio)),
+      important: Math.max(30, Math.round(alarmSummary.important * ratio)),
+      warning: Math.max(60, Math.round(alarmSummary.warning * ratio)),
+    };
+  }, [alarmSummary, customerStationIds]);
+
+  const filteredMapNodes = useMemo(() => {
+    if (!customerStationIds) return mapNodes;
+    return mapNodes.filter(n => {
+      const st = STATIONS.find(s => s.name.includes(n.name.replace('站节点', '')));
+      return st && customerStationIds.includes(st.id);
+    });
+  }, [mapNodes, customerStationIds]);
+
+  const filteredMonitorAlarms = useMemo(() => {
+    if (!customerStationIds) return monitorAlarms;
+    const ratio = customerStationIds.length / STATIONS.length;
+    return monitorAlarms.map(a => ({ ...a, value: Math.max(10, Math.round(a.value * ratio)) }));
+  }, [monitorAlarms, customerStationIds]);
+
+  const filteredHighFreqWarnings = useMemo(() => {
+    if (!customerStationIds) return highFreqWarnings;
+    const ratio = customerStationIds.length / STATIONS.length;
+    return highFreqWarnings.map(w => ({ ...w, value: Math.max(1, Math.round(w.value * ratio)) }));
+  }, [highFreqWarnings, customerStationIds]);
+
+  const filteredTrendData = useMemo(() => {
+    if (!customerStationIds) return trendData;
+    const ratio = customerStationIds.length / STATIONS.length;
+    return trendData.map(t => ({
+      ...t,
+      alarmCount: Math.max(20, Math.round(t.alarmCount * ratio)),
+    }));
+  }, [trendData, customerStationIds]);
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-100 flex flex-col font-sans select-none overflow-x-hidden pb-6">
@@ -460,20 +534,20 @@ export default function App() {
                 
                 {/* Section 1A: Site Health Ranking */}
                 <div className="h-[290px]">
-                  <SiteHealthPanel 
-                    data={siteHealths} 
+                  <SiteHealthPanel
+                    data={filteredSiteHealths}
                     onSelectStation={(id) => setSelectedStationId(id)}
                   />
                 </div>
 
                 {/* Section 1B: High Energy Consumption Ranking */}
                 <div className="h-[230px]">
-                  <EnergyRankingPanel stations={energyStations} />
+                  <EnergyRankingPanel stations={filteredEnergyStations} />
                 </div>
 
                 {/* Section 1C: Real-time Device Connection Status */}
                 <div className="h-[260px]">
-                  <DeviceStatusPanel status={deviceStatus} />
+                  <DeviceStatusPanel status={filteredDeviceStatus} />
                 </div>
 
               </section>
@@ -483,17 +557,17 @@ export default function App() {
                 
                 {/* Section 2A: Alarm severity level summaries */}
                 <div className="h-auto">
-                  <AlarmSummaryPanel summary={alarmSummary} />
+                  <AlarmSummaryPanel summary={filteredAlarmSummary} />
                 </div>
 
                 {/* Section 2B: Interactive Schematic Vector Map */}
                 <div className="flex-1 min-h-[340px] h-[360px]">
-                  <MapPanel nodes={mapNodes} />
+                  <MapPanel nodes={filteredMapNodes} />
                 </div>
 
                 {/* Section 2C: Performance and Alarm Historic Trends */}
                 <div className="h-[220px]">
-                  <PerformanceTrendPanel trendData={trendData} />
+                  <PerformanceTrendPanel trendData={filteredTrendData} />
                 </div>
 
               </section>
@@ -503,12 +577,12 @@ export default function App() {
                 
                 {/* Section 3A: Monitor Alarm Categorized donut */}
                 <div className="h-[230px]">
-                  <MonitorAlarmPanel stats={monitorAlarms} />
+                  <MonitorAlarmPanel stats={filteredMonitorAlarms} />
                 </div>
 
                 {/* Section 3B: High Frequency Warnings ranking listing */}
                 <div className="h-[270px]">
-                  <HighFreqAlarmPanel alarms={highFreqWarnings} />
+                  <HighFreqAlarmPanel alarms={filteredHighFreqWarnings} />
                 </div>
 
                 {/* Section 3C: Root Cause Analysis gauge */}
