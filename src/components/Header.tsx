@@ -108,10 +108,10 @@ export default function Header({
 
   const handleSelectCustomer = (custName: string | null) => {
     if (!custName) {
-      onSelectStation(null);
+      onSelectCustomer(null);
     } else {
-      const match = STATIONS.find(s => s.cust === custName);
-      if (match) onSelectStation(match.id);
+      // 仅设置客户名，不自动选电站，让用户在下拉里继续选站点
+      onSelectCustomer(custName);
     }
     setActiveDropdown(null);
   };
