@@ -45,6 +45,7 @@ export default function App() {
   const [selectedRepOfficeName, setSelectedRepOfficeName] = useState<string | null>(null);
   const [activeMenu, setActiveMenu] = useState<'monitor' | 'health' | 'alarm' | 'warning' | 'device' | 'site' | 'data' | 'starred'>('monitor');
   const [followedIds, setFollowedIds] = useState<string[]>(getFollowedIds());
+  const [selectedCustomerDetail, setSelectedCustomerDetail] = useState<string | null>(null);
 
   // 1. Site Health Rankings (Left-Top - Replacing concentric rings)
   const [siteHealths, setSiteHealths] = useState<SiteHealth[]>([
@@ -463,6 +464,15 @@ export default function App() {
               detail={selectedStationDetail}
               onBack={() => setSelectedStationId(null)}
             />
+          ) : selectedCustomerDetail && mockCustomerDetails[selectedCustomerDetail] ? (
+            <CustomerDetailView
+              detail={mockCustomerDetails[selectedCustomerDetail]}
+              onBack={() => setSelectedCustomerDetail(null)}
+              onSelectStation={(id) => {
+                setSelectedStationId(id);
+                setActiveMenu('monitor');
+              }}
+            />
           ) : activeMenu === 'health' ? (
             /* Multi-dimensional health viewing list */
             <HealthOverviewTab
@@ -484,6 +494,9 @@ export default function App() {
               }}
               onRepOfficeSelect={(name) => {
                 setSelectedRepOfficeName(name);
+              }}
+              onCustomerDetail={(name) => {
+                setSelectedCustomerDetail(name);
               }}
             />
           ) : activeMenu === 'alarm' ? (

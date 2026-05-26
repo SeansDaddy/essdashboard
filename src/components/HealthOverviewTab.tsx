@@ -44,6 +44,7 @@ interface HealthOverviewTabProps {
   onNavigate?: (tab: 'alarm' | 'warning') => void;
   onCustomerSelect?: (customerName: string) => void;
   onRepOfficeSelect?: (repName: string) => void;
+  onCustomerDetail?: (customerName: string) => void;
 }
 
 export default function HealthOverviewTab({
@@ -52,7 +53,8 @@ export default function HealthOverviewTab({
   onSelectStation,
   onNavigate,
   onCustomerSelect,
-  onRepOfficeSelect
+  onRepOfficeSelect,
+  onCustomerDetail
 }: HealthOverviewTabProps) {
   const [activeTab, setActiveTab] = useState<DimensionType>(initialDimension);
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,15 +96,15 @@ export default function HealthOverviewTab({
     setScoreModalType(type);
   };
 
-  // Handle overall score click — repOffice rows show CustomerDetail, customer/site rows show station detail
+  // Handle overall score click — repOffice/customer rows jump to CustomerDetail, site rows jump to station detail
   const handleOverallScoreClick = (item: any) => {
-    if (activeTab === 'repOffice' && onCustomerSelect) {
-      onCustomerSelect((item as HealthMetricsRepOffice).customerName);
-    } else if (activeTab === 'customer' && onCustomerSelect) {
-      // Customer tab: click overall score -> filter by this customer (stay on health page)
-      onCustomerSelect((item as HealthMetricsCustomer).customerName);
+    if (activeTab === 'repOffice' && onCustomerDetail) {
+      onCustomerDetail((item as HealthMetricsRepOffice).customerName);
+    } else if (activeTab === 'customer' && onCustomerDetail) {
+      // Customer tab: jump to customer detail page
+      onCustomerDetail((item as HealthMetricsCustomer).customerName);
     } else if (activeTab === 'site' && onSelectStation) {
-      // Site tab: click overall score -> also go to station detail (site has stationId in siteName mapping)
+      // Site tab: jump to station detail (site has stationId in siteName mapping)
       const siteName = (item as HealthMetricsSite).siteName;
       const sid = siteName.includes('龙岩') ? 'h1' : siteName.includes('中山') ? 'h2' : siteName.includes('静安') ? 'h3' : siteName.includes('西单') ? 'h4' : siteName.includes('春熙') ? 'h5' : 'h6';
       onSelectStation(sid);
@@ -535,13 +537,12 @@ export default function HealthOverviewTab({
                             <span>{(item as HealthMetricsCustomer).siteName}</span>
                             <span
                               onClick={() => {
-                                if (onSelectStation) {
-                                  const sid = item.siteName.includes('龙岩') ? 'h1' : item.siteName.includes('中山') ? 'h2' : item.siteName.includes('静安') ? 'h3' : item.siteName.includes('西单') ? 'h4' : item.siteName.includes('春熙') ? 'h5' : 'h6';
-                                  onSelectStation(sid);
+                                if (onCustomerDetail) {
+                                  onCustomerDetail((item as HealthMetricsCustomer).customerName);
                                 }
                               }}
                               className="opacity-0 group-hover:opacity-100 p-0.5 rounded bg-cyan-950/40 text-cyan-400 hover:bg-[#1e40a6] hover:text-white transition-all cursor-pointer"
-                              title="穿透至电站BMS专家诊断视图"
+                              title="穿透至客户健康巡检详情"
                             >
                               <ExternalLink size={10} />
                             </span>
