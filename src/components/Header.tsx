@@ -21,7 +21,9 @@ interface HeaderProps {
   onToggleSimulation: () => void;
   title: string;
   selectedStationId: string | null;
+  selectedCustomerName?: string | null;
   onSelectStation: (id: string | null) => void;
+  onSelectCustomer?: (name: string | null) => void;
 }
 
 const STATIONS = [
@@ -38,7 +40,9 @@ export default function Header({
   onToggleSimulation, 
   title, 
   selectedStationId,
-  onSelectStation 
+  selectedCustomerName,
+  onSelectStation,
+  onSelectCustomer
 }: HeaderProps) {
   const [time, setTime] = useState<string>('');
   const [date, setDate] = useState<string>('');
@@ -84,6 +88,9 @@ export default function Header({
   };
 
   const currentStation = STATIONS.find(s => s.id === selectedStationId);
+  const selectedCustStations = selectedCustomerName
+    ? STATIONS.filter(s => s.cust === selectedCustomerName)
+    : STATIONS;
 
   const toggleDropdown = (type: 'rep' | 'customer' | 'site') => {
     setActiveDropdown(prev => prev === type ? null : type);
@@ -282,9 +289,46 @@ export default function Header({
             <ChevronDown size={10} className="text-[#5f759e] shrink-0" />
           </button>
 
-          {activeDropdown === 'site' && (
+{activeDropdown === 'site' && selectedCustomerName ? (
             <div className="absolute left-0 mt-1 w-52 bg-[#0a1120]/95 backdrop-blur-md border border-[#1e40a6]/60 rounded-lg shadow-[0_10px_30px_rgba(0,240,255,0.15)] overflow-hidden z-[100] font-sans text-[10px]">
-              <div 
+              <div
+                onClick={() => { onSelectStation(null); setActiveDropdown(null); }}
+                className="px-3 py-2 text-cyan-400 hover:bg-[#1e40a6]/40 hover:text-white transition-colors cursor-pointer border-b border-[#142544]/60 font-mono bg-[#102447]/60"
+              >
+                {selectedCustomerName} · 全部电站
+              </div>
+              {selectedCustStations.slice().sort((a, b) => {
+                const aFollowed = followedIds.includes(a.id) ? 1 : 0;
+                const bFollowed = followedIds.includes(b.id) ? 1 : 0;
+                return bFollowed - aFollowed;
+              }).map(st => (
+                <div
+                  key={st.id}
+                  onClick={() => { onSelectStation(st.id); setActiveDropdown(null); }}
+                  className={`px-3 py-1.5 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] flex items-center justify-between leading-normal ${
+                    selectedStationId === st.id ? 'bg-[#102447] text-[#00f0ff] border-l-2 border-[#00f0ff]' : 'text-slate-300'
+                  }`}
+                >
+                  <div className="flex flex-col justify-center leading-normal min-w-0">
+                    <span className="text-[11px] font-medium">{st.name}</span>
+                    <span className="text-[8.5px] font-mono text-[#5f759e] -mt-0.5">{st.rep}</span>
+                  </div>
+                  <button
+                    onClick={(e) => handleToggleFollow(st.id, e)}
+                    className="shrink-0 p-1 rounded hover:bg-[#1e40a6]/60 transition-all cursor-pointer"
+                    title={followedIds.includes(st.id) ? '取消关注' : '关注'}
+                  >
+                    <Star
+                      size={13}
+                      className={followedIds.includes(st.id) ? 'fill-yellow-400 text-yellow-400' : 'text-slate-500 hover:text-yellow-400'}
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : activeDropdown === 'site' ? (
+            <div className="absolute left-0 mt-1 w-52 bg-[#0a1120]/95 backdrop-blur-md border border-[#1e40a6]/60 rounded-lg shadow-[0_10px_30px_rgba(0,240,255,0.15)] overflow-hidden z-[100] font-sans text-[10px]">
+              <div
                 onClick={() => { onSelectStation(null); setActiveDropdown(null); }}
                 className="px-3 py-2 text-slate-400 hover:bg-[#1e40a6]/40 hover:text-white transition-colors cursor-pointer border-b border-[#142544]/60 font-mono"
               >
@@ -304,7 +348,7 @@ export default function Header({
                 >
                   <div className="flex flex-col justify-center leading-normal min-w-0">
                     <span className="text-[11px] font-medium">{st.name}</span>
-                    <span className="text-[8.5px] font-mono text-[#5f759e] -mt-0.5">{st.rep} • {st.cust}</span>
+                    <span className="text-[8.5px] font-mono text-[#5f759e] -mt-0.5">{st.rep} · {st.cust}</span>
                   </div>
                   <button
                     onClick={(e) => handleToggleFollow(st.id, e)}
@@ -319,7 +363,7 @@ export default function Header({
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </div>
 
       </div>

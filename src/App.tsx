@@ -237,12 +237,14 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#020617] text-slate-100 flex flex-col font-sans select-none overflow-x-hidden pb-6">
       {/* 1. Dashboard Sleek Header */}
-      <Header 
-        title="储能电站运维平台" 
-        isSimulating={isSimulating} 
-        onToggleSimulation={() => setIsSimulating(!isSimulating)} 
+      <Header
+        title="储能电站运维平台"
+        isSimulating={isSimulating}
+        onToggleSimulation={() => setIsSimulating(!isSimulating)}
         selectedStationId={selectedStationId}
+        selectedCustomerName={selectedCustomerName}
         onSelectStation={(id) => setSelectedStationId(id)}
+        onSelectCustomer={(name) => setSelectedCustomerName(name)}
       />
 
       {/* Main Container wrapping left vertical menu and correct layout view */}
