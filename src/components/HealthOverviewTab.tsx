@@ -603,7 +603,7 @@ export default function HealthOverviewTab({
                           </>
                         )}
 
-                        <td onClick={() => handleScoreCellClick(item, 'overall')} className="p-3.5 text-center bg-[#102447]/10 hover:bg-[#1e40a6]/30 border-x border-[#142544]/60 cursor-pointer font-bold">
+                        <td onClick={() => handleOverallScoreClick(item)} className="p-3.5 text-center bg-[#102447]/10 hover:bg-[#1e40a6]/30 border-x border-[#142544]/60 cursor-pointer font-bold">
                           <span className={getScoreColorClass((item as HealthMetricsSite).overallScore)}>
                             {(item as HealthMetricsSite).overallScore}%
                           </span>
