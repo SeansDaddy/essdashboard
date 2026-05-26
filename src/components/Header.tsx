@@ -159,9 +159,6 @@ export default function Header({
           >
             <Building2 size={12} className="text-cyan-400/80 shrink-0" />
             <span>{selectedRepOfficeName || (currentStation ? currentStation.rep : '全部代表处')}</span>
-            {followedIds.length > 0 && (
-              <span className="ml-1 px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-400 text-[8px] font-bold">{followedIds.length}</span>
-            )}
             <ChevronDown size={10} className="text-[#5f759e] shrink-0" />
           </button>
 
@@ -206,14 +203,6 @@ export default function Header({
           >
             <User size={12} className="text-cyan-400/80 shrink-0" />
             <span>{selectedCustomerName || (currentStation ? currentStation.cust : '全部客户')}</span>
-            {(() => {
-              const followedOfCurrentCust = currentStation
-                ? followedIds.filter(id => STATIONS.find(s => s.id === id)?.cust === currentStation.cust).length
-                : followedIds.length;
-              return followedOfCurrentCust > 0 ? (
-                <span className="ml-1 px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-400 text-[8px] font-bold">{followedOfCurrentCust}</span>
-              ) : null;
-            })()}
             <ChevronDown size={10} className="text-[#5f759e] shrink-0" />
           </button>
 
@@ -292,9 +281,6 @@ export default function Header({
           >
             <Star size={12} className={`shrink-0 ${followedIds.length > 0 ? 'fill-yellow-400 text-yellow-400' : 'text-slate-500'}`} />
             <span>关注的客户</span>
-            {followedIds.length > 0 && (
-              <span className="ml-1 px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-400 text-[8px] font-bold">{followedIds.length}</span>
-            )}
             <ChevronDown size={10} className="text-[#5f759e] shrink-0" />
           </button>
 
@@ -347,9 +333,6 @@ export default function Header({
           >
             <MapPin size={12} className="text-cyan-400/80 shrink-0" />
             <span className="font-semibold">{currentStation ? currentStation.name : '全部站点'}</span>
-            {followedIds.length > 0 && (
-              <span className="ml-1 px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-400 text-[8px] font-bold">{followedIds.length}</span>
-            )}
             <ChevronDown size={10} className="text-[#5f759e] shrink-0" />
           </button>
 

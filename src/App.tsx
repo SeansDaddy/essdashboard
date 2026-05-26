@@ -15,7 +15,8 @@ import RepOfficeDetailView from './components/RepOfficeDetailView';
 import HealthOverviewTab from './components/HealthOverviewTab';
 import { mockStationDetails } from './data/mockDetails';
 import { mockCustomerDetails, mockRepOfficeDetails } from './data/healthMetricsData';
-import { LayoutGrid, HeartPulse, HardDrive, ShieldAlert, Award, AlertTriangle, Bell, Gauge, MapPin, Database } from 'lucide-react';
+import { getFollowedIds } from './data/followedStations';
+import { LayoutGrid, HeartPulse, HardDrive, ShieldAlert, Award, AlertTriangle, Bell, Gauge, MapPin, Database, Star } from 'lucide-react';
 
 import {
   SiteHealth,
@@ -42,7 +43,8 @@ export default function App() {
   const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
   const [selectedCustomerName, setSelectedCustomerName] = useState<string | null>(null);
   const [selectedRepOfficeName, setSelectedRepOfficeName] = useState<string | null>(null);
-  const [activeMenu, setActiveMenu] = useState<'monitor' | 'health' | 'alarm' | 'warning' | 'device' | 'site' | 'data'>('monitor');
+  const [activeMenu, setActiveMenu] = useState<'monitor' | 'health' | 'alarm' | 'warning' | 'device' | 'site' | 'data' | 'starred'>('monitor');
+  const [followedIds, setFollowedIds] = useState<string[]>(getFollowedIds());
 
   // 1. Site Health Rankings (Left-Top - Replacing concentric rings)
   const [siteHealths, setSiteHealths] = useState<SiteHealth[]>([
@@ -377,6 +379,24 @@ export default function App() {
 
           <div className="h-[1px] w-8 bg-[#142544]/60" />
 
+          {/* 关注的客户（独立菜单） */}
+          <button
+            onClick={() => setActiveMenu('starred')}
+            className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center gap-1 transition-all duration-200 cursor-pointer border ${
+              activeMenu === 'starred'
+                ? 'bg-[#1e40a6]/40 text-[#00f0ff] border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold'
+                : followedIds.length > 0
+                  ? 'bg-[#1e40a6]/20 text-yellow-400 border-transparent hover:text-yellow-300 hover:bg-[#1e40a6]/30'
+                  : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:bg-[#102447]/30'
+            }`}
+            title="我关注的客户"
+          >
+            <Star size={18} className={followedIds.length > 0 ? 'fill-yellow-400 text-yellow-400' : ''} />
+            <span className="text-[9px] font-sans scale-90 tracking-tight">关注</span>
+          </button>
+
+          <div className="h-[1px] w-8 bg-[#142544]/60" />
+
           {/* 告警 */}
           <button
             onClick={() => setActiveMenu('alarm')}
@@ -523,6 +543,54 @@ export default function App() {
                 <p className="text-xs text-slate-600 mt-2">数据管理页面开发中</p>
               </div>
             </div>
+          ) : activeMenu === 'starred' ? (
+            followedIds.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-slate-400">
+                <div className="text-center">
+                  <Star size={48} className="mx-auto mb-4 opacity-20 text-yellow-400" />
+                  <p className="text-lg font-mono">关注的客户</p>
+                  <p className="text-xs text-slate-600 mt-2">暂未关注任何客户</p>
+                </div>
+              </div>
+            ) : (
+              <main className="w-full max-w-[1920px] mx-auto px-4 md:px-6 mt-4">
+                <div className="mb-4">
+                  <h2 className="text-sm font-mono text-yellow-400 tracking-widest uppercase">我关注的客户</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {[...new Set(
+                    STATIONS.filter(s => followedIds.includes(s.id)).map(s => s.cust)
+                  )].map(cust => {
+                    const custStations = STATIONS.filter(s => s.cust === cust && followedIds.includes(s.id));
+                    const custRep = custStations[0]?.rep || '';
+                    return (
+                      <div
+                        key={cust}
+                        onClick={() => { setSelectedCustomerName(cust); setActiveMenu('monitor'); }}
+                        className="bg-[#0a1628]/80 border border-[#1e40a6]/50 rounded-xl p-4 hover:border-yellow-400/50 hover:bg-[#0f1f3d]/80 cursor-pointer transition-all"
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <Star size={14} className="fill-yellow-400 text-yellow-400 shrink-0" />
+                          <span className="text-cyan-300 font-medium text-sm">{cust}</span>
+                        </div>
+                        <div className="text-[10px] font-mono text-slate-500 mb-3">{custRep}</div>
+                        <div className="flex flex-wrap gap-2">
+                          {custStations.map(st => (
+                            <span
+                              key={st.id}
+                              onClick={(e) => { e.stopPropagation(); setSelectedStationId(st.id); setActiveMenu('monitor'); }}
+                              className="px-2 py-1 bg-[#102447]/60 border border-[#1e40a6]/40 rounded text-[10px] text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-all"
+                            >
+                              {st.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </main>
+            )
           ) : (
             /* 2. Responsive 3-Column Bento Grid Layout of core monitor dashboard */
             <main className="w-full max-w-[1920px] mx-auto px-4 md:px-6 mt-4 grid grid-cols-1 xl:grid-cols-4 gap-4">
