@@ -234,10 +234,10 @@ export default function HealthOverviewTab({
       {/* 4-Dimension Pivot smooth tabs */}
       <div className="flex bg-[#060c18] border border-[#142544]/60 p-1 rounded-xl self-start w-full sm:w-auto overflow-x-auto min-w-[280px]">
         {[
-          { id: 'region', label: '代表处维度 (代表处级)' },
-          { id: 'repOffice', label: '客户维度 (客户主体级)' },
-          { id: 'customer', label: '站点维度 (设备传感器级)' },
-          { id: 'site', label: '设备维度 (设备单体级)' }
+          { id: 'region', label: '代表处维度' },
+          { id: 'repOffice', label: '客户维度' },
+          { id: 'customer', label: '站点维度' },
+          { id: 'site', label: '设备维度' }
         ].map(tab => (
           <button
             key={tab.id}
