@@ -97,10 +97,23 @@ export default function HealthOverviewTab({
     }
   };
 
-  // Handle rep office row click (drill-down)
-  const handleRepOfficeRowClick = (rep: string) => {
-    if (onRepOfficeSelect) {
-      onRepOfficeSelect(rep);
+  // Handle rep office row click (drill-down) → show CustomerDetailView for the customer in this row
+  const handleRepOfficeRowClick = (item: HealthMetricsRepOffice) => {
+    if (onCustomerSelect) {
+      onCustomerSelect(item.customerName);
+    }
+  };
+
+  // Handle customer row click (drill-down) → show StationDetailView for the site in this row
+  const handleCustomerRowClick = (item: HealthMetricsCustomer) => {
+    if (onSelectStation) {
+      const sid = item.siteName.includes('龙岩') ? 'h1'
+        : item.siteName.includes('中山') ? 'h2'
+        : item.siteName.includes('静安') ? 'h3'
+        : item.siteName.includes('西单') ? 'h4'
+        : item.siteName.includes('春熙') ? 'h5'
+        : 'h6';
+      onSelectStation(sid);
     }
   };
 
@@ -491,9 +504,15 @@ export default function HealthOverviewTab({
                     {/* 2. REPOFFICE TAB CELLS */}
                     {activeTab === 'repOffice' && (
                       <>
-                        <td className="p-3.5 text-white font-sans">{item.rep}</td>
+                        <td 
+                          onClick={() => handleRepOfficeRowClick(item as HealthMetricsRepOffice)}
+                          className="p-3.5 text-white font-sans cursor-pointer hover:text-cyan-400"
+                        >{item.rep}</td>
                         <td className="p-3.5 text-[#5f759e]">{item.country}</td>
-                        <td className="p-3.5 text-cyan-300 font-sans font-medium">{(item as HealthMetricsRepOffice).customerName}</td>
+                        <td 
+                          onClick={() => handleRepOfficeRowClick(item as HealthMetricsRepOffice)}
+                          className="p-3.5 text-cyan-300 font-sans font-medium cursor-pointer hover:text-cyan-400"
+                        >{(item as HealthMetricsRepOffice).customerName}</td>
                         <td className="p-3.5 text-center">
                           <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 font-bold border border-slate-700">
                             {(item as HealthMetricsRepOffice).customerLevel}
@@ -524,22 +543,15 @@ export default function HealthOverviewTab({
                       <>
                         <td className="p-3.5 text-[#5f759e] font-sans">{item.rep}</td>
                         <td className="p-3.5 text-[#5f759e]">{item.country}</td>
-                        
-                        <td className="p-3.5 text-white font-sans font-semibold group-hover:text-cyan-400 transition-colors">
+
+                        <td 
+                          onClick={() => handleCustomerRowClick(item as HealthMetricsCustomer)}
+                          className="p-3.5 text-white font-sans font-semibold cursor-pointer group-hover:text-cyan-400 transition-colors"
+                        >
                           <div className="flex items-center gap-1.5">
                             <span>{(item as HealthMetricsCustomer).siteName}</span>
                             <span 
                               onClick={() => {
-                                // Find match in stations h1-h6
-                                const mockKey = Object.keys(mockRegionData).find(key => {
-                                  if (item.siteName.includes('龙岩')) return 'h1';
-                                  if (item.siteName.includes('中山')) return 'h2';
-                                  if (item.siteName.includes('静安')) return 'h3';
-                                  if (item.siteName.includes('西单')) return 'h4';
-                                  if (item.siteName.includes('春熙')) return 'h5';
-                                  return 'h6';
-                                });
-                                // trigger top back detail set
                                 if (onSelectStation) {
                                   const sid = item.siteName.includes('龙岩') ? 'h1' : item.siteName.includes('中山') ? 'h2' : item.siteName.includes('静安') ? 'h3' : item.siteName.includes('西单') ? 'h4' : item.siteName.includes('春熙') ? 'h5' : 'h6';
                                   onSelectStation(sid);
