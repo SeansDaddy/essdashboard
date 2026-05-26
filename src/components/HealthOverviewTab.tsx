@@ -234,10 +234,10 @@ export default function HealthOverviewTab({
       {/* 4-Dimension Pivot smooth tabs */}
       <div className="flex bg-[#060c18] border border-[#142544]/60 p-1 rounded-xl self-start w-full sm:w-auto overflow-x-auto min-w-[280px]">
         {[
-          { id: 'region', label: '地区部维度 (地区部级)' },
-          { id: 'repOffice', label: '代表处维度 (代表处级)' },
-          { id: 'customer', label: '客户维度 (客户主体级)' },
-          { id: 'site', label: '站点维度 (设备传感器级)' }
+          { id: 'region', label: '代表处维度 (代表处级)' },
+          { id: 'repOffice', label: '客户维度 (客户主体级)' },
+          { id: 'customer', label: '站点维度 (设备传感器级)' },
+          { id: 'site', label: '设备维度 (设备单体级)' }
         ].map(tab => (
           <button
             key={tab.id}
@@ -262,7 +262,7 @@ export default function HealthOverviewTab({
           <input
             type="text"
             className="w-full bg-slate-950 border border-[#142544] rounded-lg pl-9 pr-4 py-2 text-xs text-slate-100 placeholder-[#4d5f80] focus:outline-none focus:border-cyan-500/50 transition-all font-sans"
-            placeholder={`搜索当前维度 (${activeTab === 'region' ? '地区/代表处' : activeTab === 'repOffice' ? '代表处/客户' : activeTab === 'customer' ? '站点' : '设备/SN'})`}
+            placeholder={`搜索当前维度 (${activeTab === 'region' ? '代表处' : activeTab === 'repOffice' ? '客户' : activeTab === 'customer' ? '站点' : '设备/SN'})`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -285,7 +285,7 @@ export default function HealthOverviewTab({
                 {activeTab === 'region' && (
                   <>
                     <th onClick={() => handleSort('rep')} className="p-3.5 cursor-pointer hover:text-slate-200 select-none w-[18%]">
-                      <div className="flex items-center gap-1.5">代表处 {sortField === 'rep' && (sortDirection === 'asc' ? <ChevronUp size={11} /> : <ChevronDown size={11} />)}</div>
+                      <div className="flex items-center gap-1.5">地区部 {sortField === 'rep' && (sortDirection === 'asc' ? <ChevronUp size={11} /> : <ChevronDown size={11} />)}</div>
                     </th>
                     <th onClick={() => handleSort('country')} className="p-3.5 cursor-pointer hover:text-slate-200 select-none w-[12%]">
                       <div className="flex items-center gap-1.5">国家 {sortField === 'country' && (sortDirection === 'asc' ? <ChevronUp size={11} /> : <ChevronDown size={11} />)}</div>
