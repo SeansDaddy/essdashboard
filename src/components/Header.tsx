@@ -149,6 +149,9 @@ export default function Header({
           >
             <Building2 size={12} className="text-cyan-400/80 shrink-0" />
             <span>{currentStation ? currentStation.rep : '全部代表处'}</span>
+            {followedIds.length > 0 && (
+              <span className="ml-1 px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-400 text-[8px] font-bold">{followedIds.length}</span>
+            )}
             <ChevronDown size={10} className="text-[#5f759e] shrink-0" />
           </button>
 
@@ -193,6 +196,14 @@ export default function Header({
           >
             <User size={12} className="text-cyan-400/80 shrink-0" />
             <span>{currentStation ? currentStation.cust : '全部客户'}</span>
+            {(() => {
+              const followedOfCurrentCust = currentStation
+                ? followedIds.filter(id => STATIONS.find(s => s.id === id)?.cust === currentStation.cust).length
+                : followedIds.length;
+              return followedOfCurrentCust > 0 ? (
+                <span className="ml-1 px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-400 text-[8px] font-bold">{followedOfCurrentCust}</span>
+              ) : null;
+            })()}
             <ChevronDown size={10} className="text-[#5f759e] shrink-0" />
           </button>
 
@@ -204,18 +215,44 @@ export default function Header({
               >
                 全部客户 (主面板)
               </div>
-              {uniqueCustomers.map(cust => (
-                <div 
-                  key={cust}
-                  onClick={() => handleSelectCustomer(cust)}
-                  className={`px-3 py-2 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] flex items-center justify-between ${
-                    currentStation?.cust === cust ? 'bg-[#102447] text-[#00f0ff]' : 'text-slate-300'
-                  }`}
-                >
-                  <span>{cust}</span>
-                  <span className="text-[8px] opacity-65 text-cyan-400">SELECT</span>
-                </div>
-              ))}
+              {uniqueCustomers.map(cust => {
+                const custStations = STATIONS.filter(s => s.cust === cust);
+                const custStationIds = custStations.map(s => s.id);
+                const allFollowed = custStationIds.every(id => followedIds.includes(id));
+                return (
+                  <div
+                    key={cust}
+                    onClick={() => handleSelectCustomer(cust)}
+                    className={`px-3 py-2 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] flex items-center justify-between ${
+                      currentStation?.cust === cust ? 'bg-[#102447] text-[#00f0ff]' : 'text-slate-300'
+                    }`}
+                  >
+                    <span>{cust}</span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          custStationIds.forEach(id => {
+                            if (!followedIds.includes(id)) toggleFollowUtil(id);
+                          });
+                          if (allFollowed) {
+                            custStationIds.forEach(id => toggleFollowUtil(id));
+                          }
+                          setFollowedIds(getFollowedIds());
+                        }}
+                        className="p-0.5 rounded hover:bg-[#1e40a6]/60 transition-all cursor-pointer"
+                        title={allFollowed ? '取消关注' : '关注'}
+                      >
+                        <Star
+                          size={12}
+                          className={allFollowed ? 'fill-yellow-400 text-yellow-400' : 'text-slate-500 hover:text-yellow-400'}
+                        />
+                      </button>
+                      <span className="text-[8px] opacity-65 text-cyan-400">SELECT</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
