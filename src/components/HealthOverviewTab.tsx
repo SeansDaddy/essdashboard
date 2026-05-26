@@ -87,33 +87,18 @@ export default function HealthOverviewTab({
     setSortDirection('desc');
   };
 
-  // Score cell click handler — navigates to customer or rep office detail view
+  // Score cell click handler — overall score navigates to detail view; sub-scores open drilldown modal
   const handleScoreCellClick = (item: any, type: 'overall' | 'alarm' | 'warning' | 'perf' | 'device') => {
-    if (type !== 'overall') return; // only navigate on overall score click
-    if (activeTab === 'customer' && onCustomerSelect) {
-      onCustomerSelect((item as HealthMetricsCustomer).customerName);
-    } else if (activeTab === 'repOffice' && onRepOfficeSelect) {
+    setSelectedScoreRow(item);
+    setScoreModalType(type);
+  };
+
+  // Handle overall score click (repOffice rows → RepOfficeDetail, customer rows → CustomerDetail)
+  const handleOverallScoreClick = (item: any) => {
+    if (activeTab === 'repOffice' && onRepOfficeSelect) {
       onRepOfficeSelect((item as HealthMetricsRepOffice).rep);
-    }
-  };
-
-  // Handle rep office row click (drill-down) → show CustomerDetailView for the customer in this row
-  const handleRepOfficeRowClick = (item: HealthMetricsRepOffice) => {
-    if (onCustomerSelect) {
-      onCustomerSelect(item.customerName);
-    }
-  };
-
-  // Handle customer row click (drill-down) → show StationDetailView for the site in this row
-  const handleCustomerRowClick = (item: HealthMetricsCustomer) => {
-    if (onSelectStation) {
-      const sid = item.siteName.includes('龙岩') ? 'h1'
-        : item.siteName.includes('中山') ? 'h2'
-        : item.siteName.includes('静安') ? 'h3'
-        : item.siteName.includes('西单') ? 'h4'
-        : item.siteName.includes('春熙') ? 'h5'
-        : 'h6';
-      onSelectStation(sid);
+    } else if (activeTab === 'customer' && onCustomerSelect) {
+      onCustomerSelect((item as HealthMetricsCustomer).customerName);
     }
   };
 
@@ -504,15 +489,9 @@ export default function HealthOverviewTab({
                     {/* 2. REPOFFICE TAB CELLS */}
                     {activeTab === 'repOffice' && (
                       <>
-                        <td 
-                          onClick={() => handleRepOfficeRowClick(item as HealthMetricsRepOffice)}
-                          className="p-3.5 text-white font-sans cursor-pointer hover:text-cyan-400"
-                        >{item.rep}</td>
+                        <td className="p-3.5 text-white font-sans">{item.rep}</td>
                         <td className="p-3.5 text-[#5f759e]">{item.country}</td>
-                        <td 
-                          onClick={() => handleRepOfficeRowClick(item as HealthMetricsRepOffice)}
-                          className="p-3.5 text-cyan-300 font-sans font-medium cursor-pointer hover:text-cyan-400"
-                        >{(item as HealthMetricsRepOffice).customerName}</td>
+                        <td className="p-3.5 text-cyan-300 font-sans font-medium">{(item as HealthMetricsRepOffice).customerName}</td>
                         <td className="p-3.5 text-center">
                           <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 font-bold border border-slate-700">
                             {(item as HealthMetricsRepOffice).customerLevel}
@@ -520,8 +499,8 @@ export default function HealthOverviewTab({
                         </td>
 
                         {/* Score clickable */}
-                        <td 
-                          onClick={() => handleScoreCellClick(item, 'overall')}
+                        <td
+                          onClick={() => handleOverallScoreClick(item)}
                           className="p-3.5 text-center bg-[#102447]/10 hover:bg-[#1e40a6]/30 border-x border-[#142544]/60 cursor-pointer font-bold duration-150"
                         >
                           <span className={getScoreColorClass((item as HealthMetricsRepOffice).overallScore)}>
@@ -544,13 +523,10 @@ export default function HealthOverviewTab({
                         <td className="p-3.5 text-[#5f759e] font-sans">{item.rep}</td>
                         <td className="p-3.5 text-[#5f759e]">{item.country}</td>
 
-                        <td 
-                          onClick={() => handleCustomerRowClick(item as HealthMetricsCustomer)}
-                          className="p-3.5 text-white font-sans font-semibold cursor-pointer group-hover:text-cyan-400 transition-colors"
-                        >
+                        <td className="p-3.5 text-white font-sans font-semibold group-hover:text-cyan-400 transition-colors">
                           <div className="flex items-center gap-1.5">
                             <span>{(item as HealthMetricsCustomer).siteName}</span>
-                            <span 
+                            <span
                               onClick={() => {
                                 if (onSelectStation) {
                                   const sid = item.siteName.includes('龙岩') ? 'h1' : item.siteName.includes('中山') ? 'h2' : item.siteName.includes('静安') ? 'h3' : item.siteName.includes('西单') ? 'h4' : item.siteName.includes('春熙') ? 'h5' : 'h6';
@@ -575,7 +551,7 @@ export default function HealthOverviewTab({
                           </>
                         )}
 
-                        <td onClick={() => handleScoreCellClick(item, 'overall')} className="p-3.5 text-center bg-[#102447]/10 hover:bg-[#1e40a6]/30 border-x border-[#142544]/60 cursor-pointer font-bold">
+                        <td onClick={() => handleOverallScoreClick(item)} className="p-3.5 text-center bg-[#102447]/10 hover:bg-[#1e40a6]/30 border-x border-[#142544]/60 cursor-pointer font-bold">
                           <span className={getScoreColorClass((item as HealthMetricsCustomer).overallScore)}>
                             {(item as HealthMetricsCustomer).overallScore}%
                           </span>
