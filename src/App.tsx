@@ -372,7 +372,10 @@ export default function App() {
           {selectedCustomerName && mockCustomerDetails[selectedCustomerName] ? (
             <CustomerDetailView
               detail={mockCustomerDetails[selectedCustomerName]}
-              onBack={() => setSelectedCustomerName(null)}
+              onBack={() => {
+                setSelectedCustomerName(null);
+                setSelectedRepOfficeName(null);
+              }}
               onSelectStation={(stationId) => {
                 setSelectedStationId(stationId);
                 setActiveMenu('monitor');
@@ -381,7 +384,10 @@ export default function App() {
           ) : selectedRepOfficeName && mockRepOfficeDetails[selectedRepOfficeName] ? (
             <RepOfficeDetailView
               detail={mockRepOfficeDetails[selectedRepOfficeName]}
-              onBack={() => setSelectedRepOfficeName(null)}
+              onBack={() => {
+                setSelectedRepOfficeName(null);
+                setSelectedCustomerName(null);
+              }}
               onSelectStation={(stationId) => {
                 setSelectedStationId(stationId);
                 setActiveMenu('monitor');

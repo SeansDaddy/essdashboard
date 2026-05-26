@@ -19,7 +19,8 @@ import {
   CheckCircle,
   Clock,
   ExternalLink,
-  Info
+  Info,
+  RotateCcw
 } from 'lucide-react';
 import {
   mockRegionData,
@@ -93,12 +94,21 @@ export default function HealthOverviewTab({
     setScoreModalType(type);
   };
 
-  // Handle overall score click — repOffice rows show CustomerDetail, customer rows show CustomerDetail (site-level drill stays via icon)
+  // Handle overall score click — repOffice rows show CustomerDetail, customer/site rows show station detail
   const handleOverallScoreClick = (item: any) => {
     if (activeTab === 'repOffice' && onCustomerSelect) {
       onCustomerSelect((item as HealthMetricsRepOffice).customerName);
-    } else if (activeTab === 'customer' && onCustomerSelect) {
-      onCustomerSelect((item as HealthMetricsCustomer).customerName);
+    } else if (activeTab === 'customer' && onSelectStation) {
+      // Customer tab: click overall score -> go to station detail
+      const siteName = (item as HealthMetricsCustomer).siteName;
+      const sid = siteName.includes('龙岩') ? 'h1' : siteName.includes('中山') ? 'h2' : siteName.includes('静安') ? 'h3' : siteName.includes('西单') ? 'h4' : siteName.includes('春熙') ? 'h5' : 'h6';
+      onSelectStation(sid);
+    } else if (activeTab === 'site' && onSelectStation) {
+      // Site tab: click overall score -> also go to station detail (site has stationId in siteName mapping)
+      const deviceName = (item as HealthMetricsSite).deviceName;
+      const siteName = (item as HealthMetricsSite).siteName;
+      const sid = siteName.includes('龙岩') ? 'h1' : siteName.includes('中山') ? 'h2' : siteName.includes('静安') ? 'h3' : siteName.includes('西单') ? 'h4' : siteName.includes('春熙') ? 'h5' : 'h6';
+      onSelectStation(sid);
     }
   };
 
