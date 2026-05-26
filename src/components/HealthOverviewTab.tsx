@@ -96,17 +96,27 @@ export default function HealthOverviewTab({
     setScoreModalType(type);
   };
 
-  // Handle overall score click — repOffice/customer rows jump to CustomerDetail, site rows jump to station detail
+  // Derive station ID from siteName (matches STATIONS mapping in App.tsx)
+  const deriveStationId = (siteName: string): string => {
+    if (siteName.includes('龙岩')) return 'h1';
+    if (siteName.includes('中山')) return 'h2';
+    if (siteName.includes('静安')) return 'h3';
+    if (siteName.includes('西单')) return 'h4';
+    if (siteName.includes('春熙')) return 'h5';
+    return 'h6';
+  };
+
+  // Handle overall score click — repOffice rows jump to CustomerDetail, customer/site rows jump to station detail
   const handleOverallScoreClick = (item: any) => {
     if (activeTab === 'repOffice' && onCustomerDetail) {
       onCustomerDetail((item as HealthMetricsRepOffice).customerName);
-    } else if (activeTab === 'customer' && onCustomerDetail) {
-      // Customer tab: jump to customer detail page
-      onCustomerDetail((item as HealthMetricsCustomer).customerName);
+    } else if (activeTab === 'customer' && onSelectStation) {
+      // Customer tab: each row is a specific station — jump to station detail
+      const sid = deriveStationId((item as HealthMetricsCustomer).siteName);
+      onSelectStation(sid);
     } else if (activeTab === 'site' && onSelectStation) {
-      // Site tab: jump to station detail (site has stationId in siteName mapping)
-      const siteName = (item as HealthMetricsSite).siteName;
-      const sid = siteName.includes('龙岩') ? 'h1' : siteName.includes('中山') ? 'h2' : siteName.includes('静安') ? 'h3' : siteName.includes('西单') ? 'h4' : siteName.includes('春熙') ? 'h5' : 'h6';
+      // Site tab: jump to station detail
+      const sid = deriveStationId((item as HealthMetricsSite).siteName);
       onSelectStation(sid);
     }
   };
@@ -537,12 +547,12 @@ export default function HealthOverviewTab({
                             <span>{(item as HealthMetricsCustomer).siteName}</span>
                             <span
                               onClick={() => {
-                                if (onCustomerDetail) {
-                                  onCustomerDetail((item as HealthMetricsCustomer).customerName);
+                                if (onSelectStation) {
+                                  onSelectStation(deriveStationId((item as HealthMetricsCustomer).siteName));
                                 }
                               }}
                               className="opacity-0 group-hover:opacity-100 p-0.5 rounded bg-cyan-950/40 text-cyan-400 hover:bg-[#1e40a6] hover:text-white transition-all cursor-pointer"
-                              title="穿透至客户健康巡检详情"
+                              title="穿透至站点健康巡检详情"
                             >
                               <ExternalLink size={10} />
                             </span>
