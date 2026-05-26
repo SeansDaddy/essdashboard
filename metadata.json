@@ -1,5 +1,5 @@
 {
-  "name": "智能储能电站监控大屏",
+  "name": "储能电站运维平台",
   "description": "提供储能电站健康度排名、PCS及BMS告警等级汇总、高能耗/充放排行榜、实时高频故障等多维度的智能储能设备监测与管理大屏。",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -233,7 +233,7 @@ export default function App() {
     <div className="min-h-screen bg-[#020617] text-slate-100 flex flex-col font-sans select-none overflow-x-hidden pb-6">
       {/* 1. Dashboard Sleek Header */}
       <Header 
-        title="智能储能电站监控大屏" 
+        title="储能电站运维平台" 
         isSimulating={isSimulating} 
         onToggleSimulation={() => setIsSimulating(!isSimulating)} 
         selectedStationId={selectedStationId}
