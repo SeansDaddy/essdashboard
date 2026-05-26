@@ -398,6 +398,7 @@ export default function Header({
           title="我关注的客户"
         >
           <Star size={12} className={followedIds.length > 0 ? 'fill-yellow-400 text-yellow-400' : ''} />
+          <span className={followedIds.length > 0 ? 'text-yellow-400' : 'text-slate-500'}>关注的客户</span>
           {followedIds.length > 0 && (
             <span className="text-[9px] font-bold">{followedIds.length}</span>
           )}
