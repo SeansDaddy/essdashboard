@@ -484,9 +484,6 @@ export default function App() {
               selectedStationId={selectedStationId}
               onSelectStation={(id) => {
                 setSelectedStationId(id);
-                if (id) {
-                  setActiveMenu('monitor');
-                }
               }}
               onNavigate={(tab) => setActiveMenu(tab)}
               onCustomerSelect={(name) => {
