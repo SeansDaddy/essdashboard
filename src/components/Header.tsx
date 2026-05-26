@@ -216,6 +216,12 @@ export default function Header({
 
           {activeDropdown === 'customer' && (
             <div className="absolute left-0 mt-1 w-44 bg-[#0a1120]/95 backdrop-blur-md border border-[#1e40a6]/60 rounded-lg shadow-[0_10px_30px_rgba(0,240,255,0.15)] overflow-hidden z-[100] font-mono text-[10px]">
+              <div
+                onClick={() => handleSelectCustomer(null)}
+                className={`px-3 py-2 text-slate-400 hover:bg-[#1e40a6]/40 hover:text-white transition-colors cursor-pointer border-b border-[#142544]/60 ${!selectedCustomerName ? 'bg-[#102447] text-[#00f0ff]' : ''}`}
+              >
+                全部客户
+              </div>
               {(() => {
                 const sortedCustomers = [...uniqueCustomers].sort((a, b) => {
                   const aStations = STATIONS.filter(s => s.cust === a);
@@ -233,7 +239,7 @@ export default function Header({
                       key={cust}
                       onClick={() => handleSelectCustomer(cust)}
                       className={`px-3 py-2 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] flex items-center justify-between ${
-                        currentStation?.cust === cust ? 'bg-[#102447] text-[#00f0ff]' : 'text-slate-300'
+                        selectedCustomerName === cust ? 'bg-[#102447] text-[#00f0ff]' : 'text-slate-300'
                       }`}
                     >
                       <span>{cust}</span>
