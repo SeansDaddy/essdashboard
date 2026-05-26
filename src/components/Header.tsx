@@ -215,7 +215,14 @@ export default function Header({
               >
                 全部客户 (主面板)
               </div>
-              {uniqueCustomers.map(cust => {
+              const sortedCustomers = [...uniqueCustomers].sort((a, b) => {
+                const aStations = STATIONS.filter(s => s.cust === a);
+                const bStations = STATIONS.filter(s => s.cust === b);
+                const aFollowedCount = aStations.filter(s => followedIds.includes(s.id)).length;
+                const bFollowedCount = bStations.filter(s => followedIds.includes(s.id)).length;
+                return bFollowedCount - aFollowedCount;
+              });
+              return sortedCustomers.map(cust => {
                 const custStations = STATIONS.filter(s => s.cust === cust);
                 const custStationIds = custStations.map(s => s.id);
                 const allFollowed = custStationIds.every(id => followedIds.includes(id));
@@ -288,8 +295,12 @@ export default function Header({
               >
                 全部站点 (主面板)
               </div>
-              {STATIONS.map(st => (
-                <div 
+              {STATIONS.slice().sort((a, b) => {
+                const aFollowed = followedIds.includes(a.id) ? 1 : 0;
+                const bFollowed = followedIds.includes(b.id) ? 1 : 0;
+                return bFollowed - aFollowed;
+              }).map(st => (
+                <div
                   key={st.id}
                   onClick={() => { onSelectStation(st.id); setActiveDropdown(null); }}
                   className={`px-3 py-1.5 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] flex items-center justify-between leading-normal ${
