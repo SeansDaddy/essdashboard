@@ -11,8 +11,10 @@ import {
   Globe, 
   Building2, 
   User, 
-  ChevronDown 
+  ChevronDown,
+  Star 
 } from 'lucide-react';
+import { getFollowedIds, toggleFollow as toggleFollowUtil } from '../data/followedStations';
 
 interface HeaderProps {
   isSimulating: boolean;
@@ -41,6 +43,7 @@ export default function Header({
   const [time, setTime] = useState<string>('');
   const [date, setDate] = useState<string>('');
   const [activeDropdown, setActiveDropdown] = useState<'rep' | 'customer' | 'site' | null>(null);
+  const [followedIds, setFollowedIds] = useState<string[]>([]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +69,19 @@ export default function Header({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Initialize followed IDs from localStorage
+  useEffect(() => {
+    setFollowedIds(getFollowedIds());
+  }, []);
+
+  const handleToggleFollow = (stationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const isNowFollowed = toggleFollowUtil(stationId);
+    setFollowedIds(prev =>
+      isNowFollowed ? [...prev, stationId] : prev.filter(id => id !== stationId)
+    );
+  };
 
   const currentStation = STATIONS.find(s => s.id === selectedStationId);
 
@@ -221,6 +237,9 @@ export default function Header({
           >
             <MapPin size={12} className="text-cyan-400/80 shrink-0" />
             <span className="font-semibold">{currentStation ? currentStation.name : '全部站点'}</span>
+            {followedIds.length > 0 && (
+              <span className="ml-1 px-1 py-0.5 rounded-full bg-yellow-400/20 text-yellow-400 text-[8px] font-bold">{followedIds.length}</span>
+            )}
             <ChevronDown size={10} className="text-[#5f759e] shrink-0" />
           </button>
 
@@ -236,12 +255,24 @@ export default function Header({
                 <div 
                   key={st.id}
                   onClick={() => { onSelectStation(st.id); setActiveDropdown(null); }}
-                  className={`px-3 py-1.5 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] flex flex-col justify-center leading-normal ${
+                  className={`px-3 py-1.5 transition-colors cursor-pointer hover:bg-[#1e40a6] hover:text-[#00f0ff] flex items-center justify-between leading-normal ${
                     selectedStationId === st.id ? 'bg-[#102447] text-[#00f0ff] border-l-2 border-[#00f0ff]' : 'text-slate-300'
                   }`}
                 >
-                  <span className="text-[11px] font-medium">{st.name}</span>
-                  <span className="text-[8.5px] font-mono text-[#5f759e] -mt-0.5">{st.rep} • {st.cust}</span>
+                  <div className="flex flex-col justify-center leading-normal min-w-0">
+                    <span className="text-[11px] font-medium">{st.name}</span>
+                    <span className="text-[8.5px] font-mono text-[#5f759e] -mt-0.5">{st.rep} • {st.cust}</span>
+                  </div>
+                  <button
+                    onClick={(e) => handleToggleFollow(st.id, e)}
+                    className="shrink-0 p-1 rounded hover:bg-[#1e40a6]/60 transition-all cursor-pointer"
+                    title={followedIds.includes(st.id) ? '取消关注' : '关注'}
+                  >
+                    <Star
+                      size={13}
+                      className={followedIds.includes(st.id) ? 'fill-yellow-400 text-yellow-400' : 'text-slate-500 hover:text-yellow-400'}
+                    />
+                  </button>
                 </div>
               ))}
             </div>
