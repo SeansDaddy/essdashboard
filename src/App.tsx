@@ -562,7 +562,7 @@ export default function App() {
                     return (
                       <div
                         key={cust}
-                        onClick={() => { setSelectedCustomerName(cust); setActiveMenu('health'); }}
+                        onClick={() => setSelectedCustomerDetail(cust)}
                         className="bg-[#0a1628]/80 border border-[#1e40a6]/50 rounded-xl p-4 hover:border-yellow-400/50 hover:bg-[#0f1f3d]/80 cursor-pointer transition-all"
                       >
                         <div className="flex items-center gap-2 mb-2">
@@ -574,7 +574,7 @@ export default function App() {
                           {custStations.map(st => (
                             <span
                               key={st.id}
-                              onClick={(e) => { e.stopPropagation(); setSelectedStationId(st.id); setActiveMenu('health'); }}
+                              onClick={(e) => { e.stopPropagation(); setSelectedCustomerDetail(cust); }}
                               className="px-2 py-1 bg-[#102447]/60 border border-[#1e40a6]/40 rounded text-[10px] text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 transition-all"
                             >
                               {st.name}
